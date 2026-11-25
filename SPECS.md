@@ -4,7 +4,7 @@
 > and the **Milestones** checkboxes current as work progresses. It must never contradict
 > `SCOPE.md` (frozen). If it would, stop and ask the user.
 
-Last updated: 2026-11-25 · Current milestone: **M2 Stage 2a done; frozen config v3 (Rules A and B) awaiting user review; Stage 2b (test) NOT authorized**
+Last updated: 2026-11-26 · Current milestone: **M2 CLOSED (pending user review of closure report); M3 not started**
 
 ---
 
@@ -21,12 +21,12 @@ Status: ☐ todo · ◐ in progress · ☑ done
 | ID | Requirement | Acceptance check | Status |
 |---|---|---|---|
 | A1 | Leak-free, time-aware train/test split | Split code documented; scaler/resampling fit on train only; duplicates handled | ☑ (tests pass) |
-| A2 | Justified metrics | README states why PR-AUC leads, why accuracy is not used; recall @ fixed precision reported | ◐ (val done; test in M2) |
+| A2 | Justified metrics | README states why PR-AUC leads, why accuracy is not used; recall @ fixed precision reported | ☑ |
 | A3 | Baseline model | Logistic regression (class-weighted), metrics reported | ☑ (val) |
-| A4 | Stronger model | XGBoost, same split/metrics, compared to A3 with variance estimate | ◐ (val done: +0.009 PR-AUC, CI [-0.013, 0.034]; test pending) |
-| A5 | Threshold + cost discussion | Explicit cost model with stated assumptions; threshold chosen from it; FP vs FN trade-off table/plot | ◐ (rule derived; underperformed on val; see D-09) |
-| A6 | Real-time inference note | ≤ 1 page: latency, history-dependent features, label delay, drift, PCA-anonymized feature limitation | ☐ |
-| A7 | Honest limits | Only 492 frauds → noisy metrics; dataset is 2 days, anonymized; stated in README | ☐ |
+| A4 | Stronger model | XGBoost, same split/metrics, compared to A3 with variance estimate | ☑ (test: XGB 0.757 vs LR 0.700, paired diff +0.046, CI [-0.031, +0.152]: not significant) |
+| A5 | Threshold + cost discussion | Explicit cost model with stated assumptions; threshold chosen from it; FP vs FN trade-off table/plot | ☑ |
+| A6 | Real-time inference note | ≤ 1 page: latency, history-dependent features, label delay, drift, PCA-anonymized feature limitation | ☑ (README; explicitly not a production implementation) |
+| A7 | Honest limits | Only 492 frauds → noisy metrics; dataset is 2 days, anonymized; stated in README | ☑ (README) |
 
 ### Part B — LLM triage
 | ID | Requirement | Acceptance check | Status |
@@ -168,10 +168,10 @@ Why: the baseline is the yardstick; correct split first means no later number is
 
 ### M2 — Part A stronger model, threshold, note (90 min)
 Why: comparison and cost reasoning are what graders read.
-- [ ] Gradient-boosting model, same protocol, variance/CI (A4)
-- [ ] Cost model + threshold (A5)
-- [ ] Real-time note (A6), limits (A7)
-- [ ] README Part A section written
+- [x] Gradient-boosting model, same protocol, variance/CI (A4)
+- [x] Cost model + threshold (A5)
+- [x] Real-time note (A6), limits (A7)
+- [x] README Part A section written
 
 ### M3 — Part B slice and taxonomy (45 min)
 Why: taxonomy and slice define "correct"; changing them later invalidates labels.
@@ -262,7 +262,7 @@ Short record of the two post-milestone questions. Full answers are given in chat
 |---|---|---|
 | M0 | Pins from one macOS arm64 machine; pandas 3.x is new; Gemini reliability untested | Pins unfiltered (transitive); no fresh-clone proof yet (M8) |
 | M1 | 4 FPs decide the 90%-precision threshold; recall tuned on same val data; only 55 val frauds; 2-day window; dedupe choice; drift in fraud rate | Threshold 0.999995 is knife-edge; baseline never tuned; CI ignores split choice; scores uncalibrated |
-| M2a (v3: Rules A and B) | Amount-band over-prediction >EUR 10 may be prevalence shift + noise, not amount-specific (bands hold 1-31 frauds); both rules rest on hypothetical c; | Rule B assumes one constant loss per missed fraud (train mean EUR 120) while fraud sizes are very skewed (val median EUR 8); depends entirely on the hypothetical c; low thresholds (c=1 -> p>0.0083) sit where calibration is weakest (XGB bin [0.001,0.01): predicted 0.25% vs observed 0.04%); rule choice was informed by validation results; original: Cost rule rests on amount-conditional calibration that was only checked in aggregate; fraud value is concentrated (val fraud median EUR 8, total EUR 8,396, ~all in 24 caught frauds), so costs are noise-dominated; prevalence shift train->val (0.165%->0.129%) biases p up; no test yet; hypothetical costs | PR-AUC gain is within noise; rule worse than simple top-k references (in-sample, so the gap is overstated); XGBoost costs MORE than logistic under the rule; OOF fold 4 has only 28 frauds; untuned XGBoost; p*Amount assumes full prevention |
+| M2b (test, single evaluation) | Test has 52 frauds (EUR 6,169 total); PR-AUC fell from validation (LR 0.837->0.700, XGB 0.846->0.757), so validation was optimistic; Rule B's validation advantage did not carry over (XGB c=5: A 2,855 vs B 2,897; c=1: A 1,075 vs B 1,815); cost CIs very wide; both models' missed-fraud EUR at Rule B c=5 identical (2,372), consistent with the same large frauds being missed (not verified); hypothetical costs | XGBoost not shown better than logistic (CI spans 0) and has worse precision at c=5; one fixed time split; test used for reporting only but design decisions (Rule B) were validation-informed; XGB over-predicts (ratio 1.34) | M2a (v3: Rules A and B) | Amount-band over-prediction >EUR 10 may be prevalence shift + noise, not amount-specific (bands hold 1-31 frauds); both rules rest on hypothetical c; | Rule B assumes one constant loss per missed fraud (train mean EUR 120) while fraud sizes are very skewed (val median EUR 8); depends entirely on the hypothetical c; low thresholds (c=1 -> p>0.0083) sit where calibration is weakest (XGB bin [0.001,0.01): predicted 0.25% vs observed 0.04%); rule choice was informed by validation results; original: Cost rule rests on amount-conditional calibration that was only checked in aggregate; fraud value is concentrated (val fraud median EUR 8, total EUR 8,396, ~all in 24 caught frauds), so costs are noise-dominated; prevalence shift train->val (0.165%->0.129%) biases p up; no test yet; hypothetical costs | PR-AUC gain is within noise; rule worse than simple top-k references (in-sample, so the gap is overstated); XGBoost costs MORE than logistic under the rule; OOF fold 4 has only 28 frauds; untuned XGBoost; p*Amount assumes full prevention |
 | M3 | — | — |
 | M4 | — | — |
 | M5 | — | — |
@@ -282,7 +282,7 @@ For each milestone: proposal drafted → approved by user → executed → two r
 |---|---|---|---|---|---|
 | M0 Setup & decisions | ☑ | ☑ | ☑ | ☑ | ☑ |
 | M1 Part A baseline | ☑ | ☑ | ☑ | ☑ | ☑ |
-| M2 Part A stronger model, threshold | ☐ | ☐ | ☐ | ☐ | ☐ |
+| M2 Part A stronger model, threshold | ☑ | ☑ (+2a/2b gates) | ☑ | ☑ | ☑ |
 | M3 Part B slice & taxonomy | ☐ | ☐ | ☐ | ☐ | ☐ |
 | M4 Part B hand labeling | ☐ | ☐ | ☐ | ☐ | ☐ |
 | M5 Part B pipeline | ☐ | ☐ | ☐ | ☐ | ☐ |
@@ -292,14 +292,14 @@ For each milestone: proposal drafted → approved by user → executed → two r
 
 ### 14.2 Goals achieved? (maps to SCOPE §8 grading criteria)
 **Judgment**
-- [ ] Every metric choice is justified in writing (A2)
+- [x] Every metric choice is justified in writing (A2)
 - [ ] Every cut is listed with a reason in the README (§11)
 - [ ] Limits and optimistic numbers are stated plainly (A7, B8)
 - [ ] Decision log is complete and consistent with the code
 
 **Evaluation rigor**
-- [ ] Part A: no leakage (time split, fit-on-train-only, leakage test passes)
-- [ ] Part A: variance/CI reported; test set used once
+- [x] Part A: no leakage (time split, fit-on-train-only, leakage test passes)
+- [x] Part A: variance/CI reported; test set used once
 - [ ] Part B: hand labels made before viewing model output
 - [ ] Part B: "correct" defined per field; `requires_human` recall reported
 - [ ] Part B: injection and sensitive-case tests run and reported
@@ -318,7 +318,7 @@ For each milestone: proposal drafted → approved by user → executed → two r
 - [ ] AI_USAGE.md specific and truthful; authorship table final
 
 **Results (least weighted)**
-- [ ] Part A: baseline vs stronger model compared with reasoning
+- [x] Part A: baseline vs stronger model compared with reasoning
 - [ ] Part B: scores reported honestly, including failures
 
 ### 14.3 Final submission checklist

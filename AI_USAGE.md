@@ -27,7 +27,7 @@ and can explain it.
 | SPECS.md | ~90% | Requested structure; decisions to be confirmed | ☐ |
 | CLAUDE.md | ~90% | Requested; rules to be confirmed | ☐ |
 | AI_USAGE.md | ~90% | Reviews entries for accuracy | ☐ |
-| Part A code | — | — | — |
+| Part A code (`part_a/*.py`, `tests/`) | ~95% AI-written; author specified design constraints, reviewed results | Specified split, leakage, duplicate, calibration and rule requirements; made all decisions | ☐ |
 | Part B code | — | — | — |
 | README.md | — | — | — |
 | memo.md | — | — | — |
@@ -92,6 +92,20 @@ AI answered that Rule B is not theoretically preferable, ran a validation-only c
 (saved as `part_a/diag_amount_bands.py`), archived v2, regenerated the frozen config as v3, verified hashes of v1/v2/v3,
 and found and corrected one inaccurate sentence in its own draft (v1 file was written by the run that first produced
 validation results, not before). README and SPECS updated. Test set not accessed.
+
+### 2026-11-26 — Session 1, M2 Stage 2b (single test evaluation)
+**AI did:** wrote `part_a/final_test.py` (verifies config/model/dataset/code hashes, loads frozen models and Platt coefficients,
+evaluates both models and both rules, bootstrap CIs, refuses a second test run); dry-ran it on validation to confirm it reproduces
+Stage 2a numbers exactly; then ran it once on test (`outputs/m2_test_results.json`, sha256 f54b10a5...b985). Note: `final_test.py`
+was added after the freeze, so it is not in the config's code hashes. **Author:** authorized Stage 2b after reviewing config v3.
+Nothing was tuned, recalibrated or changed after seeing test results.
+
+### 2026-11-26 — Session 1, M2 closure
+**AI did:** rewrote the README Part A section (results exactly as reported, CIs, Rule A/B roles, Rule B's non-generalization,
+cost-model assumptions vs. actual business savings, PR-AUC vs cost explanation, A6 real-time note, A7 limitations, frozen-artifact
+hashes); updated SPECS statuses and checklists. No code, model, threshold, calibration or test-set changes; frozen files re-hashed
+and unchanged. **Author:** directed the content requirements and approved closure scope.
+**README Part A authorship estimate:** ~90% AI-drafted text; numbers come from the saved result files; author reviews before submission.
 
 <!-- Claude: append new session entries below this line, newest last. Keep entries specific. -->
 

@@ -1,0 +1,363 @@
+{
+  "config_sha256": "dedccf6a3ff45e3821abbc25e76b0055cbe10bbd6d222cf4a2402b2e77de94ce",
+  "split": "val",
+  "n": 42558,
+  "n_fraud": 55,
+  "base_rate": 0.0012923539640020678,
+  "total_fraud_eur": 8396.11,
+  "flag_nothing_cost": 8396.11,
+  "models": {
+    "logreg": {
+      "pr_auc": 0.8366670432513109,
+      "pr_auc_ci95": [
+        0.7433583956175561,
+        0.9170305308678715
+      ],
+      "roc_auc_secondary": 0.9824384588895329,
+      "calibration": {
+        "sum_p": 58.001158969679885,
+        "observed_frauds": 55,
+        "ratio_expected_over_observed": 1.0545665267214523,
+        "brier": 0.00036659089550346654,
+        "log_loss": 0.002236382224568579,
+        "bins": [
+          {
+            "bin": "[0,0.001)",
+            "n": 40363,
+            "frauds": 4,
+            "mean_pred": 0.0002565497988333761,
+            "observed_rate": 9.91006614969155e-05
+          },
+          {
+            "bin": "[0.001,0.01)",
+            "n": 2089,
+            "frauds": 3,
+            "mean_pred": 0.0018547586855645422,
+            "observed_rate": 0.0014360938247965534
+          },
+          {
+            "bin": "[0.01,0.1)",
+            "n": 48,
+            "frauds": 5,
+            "mean_pred": 0.026146931557653658,
+            "observed_rate": 0.10416666666666667
+          },
+          {
+            "bin": "[0.1,0.5)",
+            "n": 14,
+            "frauds": 2,
+            "mean_pred": 0.2017626655705811,
+            "observed_rate": 0.14285714285714285
+          },
+          {
+            "bin": "[0.5,1)",
+            "n": 44,
+            "frauds": 41,
+            "mean_pred": 0.9020845116470112,
+            "observed_rate": 0.9318181818181818
+          }
+        ],
+        "high_bin_obs_over_pred": 1.0113745335204765,
+        "adequate": true
+      },
+      "rules": {
+        "rule_A_c=5.0": {
+          "flagged": 102,
+          "tp": 22,
+          "fp": 80,
+          "fn": 33,
+          "tn": 42423,
+          "precision": 0.21568627450980393,
+          "recall": 0.4,
+          "cost": 938.02,
+          "cost_ci95_bootstrap": [
+            527.0765,
+            1598.6134999999997
+          ],
+          "saving_vs_flag_nothing": 7458.09
+        },
+        "rule_A_c=1.0": {
+          "flagged": 350,
+          "tp": 29,
+          "fp": 321,
+          "fn": 26,
+          "tn": 42182,
+          "precision": 0.08285714285714285,
+          "recall": 0.5272727272727272,
+          "cost": 523.6,
+          "cost_ci95_bootstrap": [
+            370.58549999999997,
+            792.1237499999999
+          ],
+          "saving_vs_flag_nothing": 7872.51
+        },
+        "rule_A_c=25.0": {
+          "flagged": 45,
+          "tp": 19,
+          "fp": 26,
+          "fn": 36,
+          "tn": 42477,
+          "precision": 0.4222222222222222,
+          "recall": 0.34545454545454546,
+          "cost": 1580.92,
+          "cost_ci95_bootstrap": [
+            1050.33175,
+            2316.3
+          ],
+          "saving_vs_flag_nothing": 6815.1900000000005
+        },
+        "rule_B_c=5.0": {
+          "flagged": 65,
+          "tp": 43,
+          "fp": 22,
+          "fn": 12,
+          "tn": 42481,
+          "precision": 0.6615384615384615,
+          "recall": 0.7818181818181819,
+          "cost": 728.79,
+          "cost_ci95_bootstrap": [
+            337.91,
+            1331.18025
+          ],
+          "saving_vs_flag_nothing": 7667.320000000001
+        },
+        "rule_B_c=1.0": {
+          "flagged": 116,
+          "tp": 48,
+          "fp": 68,
+          "fn": 7,
+          "tn": 42435,
+          "precision": 0.41379310344827586,
+          "recall": 0.8727272727272727,
+          "cost": 277.55,
+          "cost_ci95_bootstrap": [
+            125.86500000000001,
+            520.1177499999999
+          ],
+          "saving_vs_flag_nothing": 8118.56
+        },
+        "rule_B_c=25.0": {
+          "flagged": 48,
+          "tp": 42,
+          "fp": 6,
+          "fn": 13,
+          "tn": 42497,
+          "precision": 0.875,
+          "recall": 0.7636363636363637,
+          "cost": 1604.56,
+          "cost_ci95_bootstrap": [
+            1053.6290000000001,
+            2233.40125
+          ],
+          "saving_vs_flag_nothing": 6791.550000000001
+        }
+      },
+      "amount_band_calibration_descriptive": [
+        {
+          "band": "[0,10)",
+          "n": 13657,
+          "expected_frauds": 27.093821462157152,
+          "actual_frauds": 31
+        },
+        {
+          "band": "[10,100)",
+          "n": 19473,
+          "expected_frauds": 10.59416139848416,
+          "actual_frauds": 7
+        },
+        {
+          "band": "[100,1000)",
+          "n": 8898,
+          "expected_frauds": 15.938988901534962,
+          "actual_frauds": 16
+        },
+        {
+          "band": "[1000,inf)",
+          "n": 530,
+          "expected_frauds": 4.374187207503605,
+          "actual_frauds": 1
+        }
+      ]
+    },
+    "xgboost": {
+      "pr_auc": 0.8463359435515564,
+      "pr_auc_ci95": [
+        0.7501656341071316,
+        0.9263080081214545
+      ],
+      "roc_auc_secondary": 0.989095956862938,
+      "calibration": {
+        "sum_p": 74.06489562988281,
+        "observed_frauds": 55,
+        "ratio_expected_over_observed": 1.3466344659978693,
+        "brier": 0.00031452218536287546,
+        "log_loss": 0.002194082597270608,
+        "bins": [
+          {
+            "bin": "[0,0.001)",
+            "n": 36657,
+            "frauds": 2,
+            "mean_pred": 0.0002534441591706127,
+            "observed_rate": 5.455983850287803e-05
+          },
+          {
+            "bin": "[0.001,0.01)",
+            "n": 5486,
+            "frauds": 2,
+            "mean_pred": 0.0024532070383429527,
+            "observed_rate": 0.0003645643456069996
+          },
+          {
+            "bin": "[0.01,0.1)",
+            "n": 355,
+            "frauds": 7,
+            "mean_pred": 0.024406833574175835,
+            "observed_rate": 0.01971830985915493
+          },
+          {
+            "bin": "[0.1,0.5)",
+            "n": 17,
+            "frauds": 2,
+            "mean_pred": 0.18674205243587494,
+            "observed_rate": 0.11764705882352941
+          },
+          {
+            "bin": "[0.5,1)",
+            "n": 43,
+            "frauds": 42,
+            "mean_pred": 0.9180713295936584,
+            "observed_rate": 0.9767441860465116
+          }
+        ],
+        "high_bin_obs_over_pred": 1.0316122790505278,
+        "adequate": true
+      },
+      "rules": {
+        "rule_A_c=5.0": {
+          "flagged": 309,
+          "tp": 24,
+          "fp": 285,
+          "fn": 31,
+          "tn": 42218,
+          "precision": 0.07766990291262135,
+          "recall": 0.43636363636363634,
+          "cost": 1726.47,
+          "cost_ci95_bootstrap": [
+            1476.3645000000001,
+            2033.1762499999998
+          ],
+          "saving_vs_flag_nothing": 6669.64
+        },
+        "rule_A_c=1.0": {
+          "flagged": 1063,
+          "tp": 29,
+          "fp": 1034,
+          "fn": 26,
+          "tn": 41469,
+          "precision": 0.027281279397930385,
+          "recall": 0.5272727272727272,
+          "cost": 1236.6,
+          "cost_ci95_bootstrap": [
+            1062.44075,
+            1512.03025
+          ],
+          "saving_vs_flag_nothing": 7159.51
+        },
+        "rule_A_c=25.0": {
+          "flagged": 60,
+          "tp": 19,
+          "fp": 41,
+          "fn": 36,
+          "tn": 42462,
+          "precision": 0.31666666666666665,
+          "recall": 0.34545454545454546,
+          "cost": 1955.92,
+          "cost_ci95_bootstrap": [
+            1417.90375,
+            2633.2065
+          ],
+          "saving_vs_flag_nothing": 6440.1900000000005
+        },
+        "rule_B_c=5.0": {
+          "flagged": 116,
+          "tp": 48,
+          "fp": 68,
+          "fn": 7,
+          "tn": 42435,
+          "precision": 0.41379310344827586,
+          "recall": 0.8727272727272727,
+          "cost": 741.55,
+          "cost_ci95_bootstrap": [
+            545.6855,
+            1020.954
+          ],
+          "saving_vs_flag_nothing": 7654.56
+        },
+        "rule_B_c=1.0": {
+          "flagged": 492,
+          "tp": 51,
+          "fp": 441,
+          "fn": 4,
+          "tn": 42062,
+          "precision": 0.10365853658536585,
+          "recall": 0.9272727272727272,
+          "cost": 605.69,
+          "cost_ci95_bootstrap": [
+            467.975,
+            843.87875
+          ],
+          "saving_vs_flag_nothing": 7790.42
+        },
+        "rule_B_c=25.0": {
+          "flagged": 48,
+          "tp": 43,
+          "fp": 5,
+          "fn": 12,
+          "tn": 42498,
+          "precision": 0.8958333333333334,
+          "recall": 0.7818181818181819,
+          "cost": 1603.56,
+          "cost_ci95_bootstrap": [
+            1067.0375,
+            2328.6420000000003
+          ],
+          "saving_vs_flag_nothing": 6792.550000000001
+        }
+      },
+      "amount_band_calibration_descriptive": [
+        {
+          "band": "[0,10)",
+          "n": 13657,
+          "expected_frauds": 32.197113037109375,
+          "actual_frauds": 31
+        },
+        {
+          "band": "[10,100)",
+          "n": 19473,
+          "expected_frauds": 14.846123695373535,
+          "actual_frauds": 7
+        },
+        {
+          "band": "[100,1000)",
+          "n": 8898,
+          "expected_frauds": 24.285442352294922,
+          "actual_frauds": 16
+        },
+        {
+          "band": "[1000,inf)",
+          "n": 530,
+          "expected_frauds": 2.7362256050109863,
+          "actual_frauds": 1
+        }
+      ]
+    }
+  },
+  "paired_bootstrap_pr_auc_xgb_minus_logreg": {
+    "mean_diff": 0.009027248242647544,
+    "ci95": [
+      -0.012737645610182789,
+      0.03414176622852114
+    ],
+    "frac_positive": 0.771
+  }
+}
