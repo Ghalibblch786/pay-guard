@@ -1,0 +1,218 @@
+{
+  "calibration": {
+    "coefficients": {
+      "logreg": {
+        "intercept": -6.4689952486487075,
+        "slope": 0.5036341429292258
+      },
+      "xgboost": {
+        "intercept": -2.3747055530548096,
+        "slope": 0.7177084684371948
+      }
+    },
+    "folds": [
+      {
+        "fit_frauds": 104,
+        "fit_rows": 39719,
+        "fit_time": [
+          0.0,
+          40014.0
+        ],
+        "fold": 1,
+        "pred_frauds": 89,
+        "pred_rows": 39723,
+        "pred_time": [
+          40015.0,
+          58159.0
+        ]
+      },
+      {
+        "fit_frauds": 193,
+        "fit_rows": 79442,
+        "fit_time": [
+          0.0,
+          58159.0
+        ],
+        "fold": 2,
+        "pred_frauds": 47,
+        "pred_rows": 39722,
+        "pred_time": [
+          58160.0,
+          75525.0
+        ]
+      },
+      {
+        "fit_frauds": 240,
+        "fit_rows": 119164,
+        "fit_time": [
+          0.0,
+          75525.0
+        ],
+        "fold": 3,
+        "pred_frauds": 98,
+        "pred_rows": 39721,
+        "pred_time": [
+          75526.0,
+          112564.0
+        ]
+      },
+      {
+        "fit_frauds": 338,
+        "fit_rows": 158885,
+        "fit_time": [
+          0.0,
+          112564.0
+        ],
+        "fold": 4,
+        "pred_frauds": 28,
+        "pred_rows": 39722,
+        "pred_time": [
+          112566.0,
+          132905.0
+        ]
+      }
+    ],
+    "method": "Platt (sigmoid) on raw margin, fit on train out-of-fold scores",
+    "oof_rows": 158888
+  },
+  "calibration_adequacy_criterion": {
+    "expected_vs_observed_ratio": [
+      0.67,
+      1.5
+    ],
+    "high_bin_obs_over_pred": [
+      0.5,
+      2.0
+    ],
+    "high_bin_p_min": 0.1
+  },
+  "code_sha256": {
+    "part_a/data.py": "ba2e99137e52d5fa78550df6fd486e7f77a5f99887c3d79ba490df5911128633",
+    "part_a/evaluate.py": "b3687458abf790ac88a5250aa9062bb554ef602ba531d21ee81895553fdbc532",
+    "part_a/stage2a.py": "fc52ed59d119a0d89dd0a6a44249d4b88d491f21e85f82ff5721a4337f7178c7",
+    "part_a/train.py": "49715fac77cc2202537c3d5d503549628e79e1e26f333b8614104121ebb0ccbf"
+  },
+  "cost_definition": "total = c * (number flagged, true or false alerts) + sum(Amount of every missed, unflagged fraud)",
+  "costs": {
+    "currency": "EUR (matches dataset Amount); ALL VALUES HYPOTHETICAL, not PayGuard operating costs",
+    "review_cost_base": 5.0,
+    "review_cost_sensitivity": [
+      1.0,
+      25.0
+    ]
+  },
+  "dataset": {
+    "dedupe_exact_duplicates": true,
+    "file": "data/raw/creditcard.csv",
+    "rows_after_dedupe": 283726,
+    "sha256": "76274b691b16a6c49d3f159c883398e03ccd6d1ee12d9d8ee38f4b4b98551a89"
+  },
+  "decision_rule": "Rule B: flag if calibrated_p > c / mean_fraud_amount_train",
+  "deviation_from_preregistered_rule": {
+    "informed_by_validation": true,
+    "original_rule_A": "flag if calibrated_p * Amount > c (frozen provisionally in v1, hash in superseded_v1_config.sha256)",
+    "replaced_by": "Rule B (above), approved by the user after Stage 2a validation results",
+    "rule_B_threshold_tuned_on_validation": false,
+    "unchanged": "models, hyperparameters, preprocessing, seeds, split, OOF folds, Platt calibrators",
+    "why_A_rejected": "On validation, Rule A cost XGBoost EUR 1,726 at c=5 vs ~EUR 630 for in-sample reference cutoffs and flagged 309 transactions (median Amount ~EUR 1k) with expected prevented loss (~EUR 11.9k) above the total validation fraud value (EUR 8.4k): it relied on amount-conditional calibration that was only checked in aggregate."
+  },
+  "features": [
+    "Time",
+    "V1",
+    "V2",
+    "V3",
+    "V4",
+    "V5",
+    "V6",
+    "V7",
+    "V8",
+    "V9",
+    "V10",
+    "V11",
+    "V12",
+    "V13",
+    "V14",
+    "V15",
+    "V16",
+    "V17",
+    "V18",
+    "V19",
+    "V20",
+    "V21",
+    "V22",
+    "V23",
+    "V24",
+    "V25",
+    "V26",
+    "V27",
+    "V28",
+    "Amount"
+  ],
+  "mean_fraud_amount_train_eur": 120.29071038251365,
+  "models": {
+    "logreg": {
+      "class": "LogisticRegression(class_weight='balanced', max_iter=1000)",
+      "file": "logreg_baseline.joblib",
+      "seed": "n/a (deterministic)",
+      "sha256": "c5a67b246f66e83c5bc19d44b88c8df75a3482893ea03ebbc3e57d43b1fd7623"
+    },
+    "xgboost": {
+      "file": "xgb_primary.json",
+      "params": {
+        "colsample_bytree": 0.8,
+        "learning_rate": 0.05,
+        "max_depth": 4,
+        "n_estimators": 300,
+        "n_jobs": 1,
+        "subsample": 0.8,
+        "tree_method": "hist"
+      },
+      "scale_pos_weight": "negatives/positives of the training data it is fit on",
+      "seed": 42,
+      "sha256": "92a1e8648325b7f8c311fcadc782882f7d4b94d90d40320937b6192f6080a2bc"
+    }
+  },
+  "p_thresholds_by_c": {
+    "1.0": 0.008313193901840715,
+    "25.0": 0.20782984754601785,
+    "5.0": 0.04156596950920357
+  },
+  "preprocessing": {
+    "logreg": "StandardScaler fit on the data passed to fit (train only) inside a Pipeline",
+    "xgboost": "none (tree model; scale-invariant)"
+  },
+  "rule_assumptions": [
+    "calibrated fraud probability (aggregate; not verified per Amount band)",
+    "constant review cost c per flagged transaction (hypothetical)",
+    "every fraud costs the TRAIN mean fraud Amount if missed (a single constant; real fraud sizes are highly skewed)",
+    "a flagged fraud is fully prevented"
+  ],
+  "seeds": {
+    "primary": 42,
+    "robustness_only_not_used_for_test": [
+      43,
+      44
+    ]
+  },
+  "software": {
+    "joblib": "1.6.0",
+    "numpy": "2.5.5",
+    "pandas": "3.1.1",
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "python": "3.12.16",
+    "scikit-learn": "1.9.1",
+    "xgboost": "3.4.1"
+  },
+  "split": {
+    "rule": "sort by Time (stable); cut at Time values found at 70% and 85% row positions; ties go to the later split",
+    "test": "not accessed during Stage 2a (only its start time is read from the Time column)",
+    "test_starts_at_time": 151320.0,
+    "train_frauds": 366,
+    "train_rows": 198607,
+    "val_frauds": 55,
+    "val_rows": 42558,
+    "validation_starts_at_time": 132906.0
+  },
+  "stage": "M2 stage 2a freeze",
+  "target": "Class"
+}

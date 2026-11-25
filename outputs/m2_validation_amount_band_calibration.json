@@ -1,0 +1,70 @@
+{
+  "xgboost": [
+    {
+      "amount_band": "[0,10)",
+      "n": 13657,
+      "expected_frauds": 32.197113037109375,
+      "actual_frauds": 31,
+      "expected_loss_eur": 64.43853627067925,
+      "actual_fraud_eur": 59.589999999999996
+    },
+    {
+      "amount_band": "[10,100)",
+      "n": 19473,
+      "expected_frauds": 14.846123695373535,
+      "actual_frauds": 7,
+      "expected_loss_eur": 674.3927311184116,
+      "actual_fraud_eur": 319.10999999999996
+    },
+    {
+      "amount_band": "[100,1000)",
+      "n": 8898,
+      "expected_frauds": 24.285442352294922,
+      "actual_frauds": 16,
+      "expected_loss_eur": 9735.467423488224,
+      "actual_fraud_eur": 6682.41
+    },
+    {
+      "amount_band": "[1000,inf)",
+      "n": 530,
+      "expected_frauds": 2.7362256050109863,
+      "actual_frauds": 1,
+      "expected_loss_eur": 4606.096478785695,
+      "actual_fraud_eur": 1335.0
+    }
+  ],
+  "logreg": [
+    {
+      "amount_band": "[0,10)",
+      "n": 13657,
+      "expected_frauds": 27.093821462157152,
+      "actual_frauds": 31,
+      "expected_loss_eur": 50.07374549960911,
+      "actual_fraud_eur": 59.589999999999996
+    },
+    {
+      "amount_band": "[10,100)",
+      "n": 19473,
+      "expected_frauds": 10.59416139848416,
+      "actual_frauds": 7,
+      "expected_loss_eur": 482.03493518145217,
+      "actual_fraud_eur": 319.10999999999996
+    },
+    {
+      "amount_band": "[100,1000)",
+      "n": 8898,
+      "expected_frauds": 15.938988901534962,
+      "actual_frauds": 16,
+      "expected_loss_eur": 6726.327400682882,
+      "actual_fraud_eur": 6682.41
+    },
+    {
+      "amount_band": "[1000,inf)",
+      "n": 530,
+      "expected_frauds": 4.374187207503605,
+      "actual_frauds": 1,
+      "expected_loss_eur": 19155.2136360458,
+      "actual_fraud_eur": 1335.0
+    }
+  ]
+}
