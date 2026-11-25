@@ -1,0 +1,17 @@
+[project]
+name = "pay-guard"
+version = "0.1.0"
+description = "PayGuard take-home: fraud detection prototype, LLM complaint triage prototype, production memo"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "xgboost",
+    "matplotlib",
+    "pydantic>=2",
+    "pyyaml",
+    "python-dotenv",
+    "google-genai",
+    "pytest",
+]
