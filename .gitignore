@@ -10,3 +10,6 @@ outputs/*
 !outputs/*.json
 !outputs/*.png
 .DS_Store
+
+# Part B aggregate outputs: keep local (user decision 2026-11-26)
+outputs/m3*.json

@@ -4,7 +4,7 @@
 > and the **Milestones** checkboxes current as work progresses. It must never contradict
 > `SCOPE.md` (frozen). If it would, stop and ask the user.
 
-Last updated: 2026-11-26 · Current milestone: **M2 CLOSED (pending user review of closure report); M3 not started**
+Last updated: 2026-11-26 · Current milestone: **M3 Step 1 DONE (sanitizer + sensitive-content flagger + synthetic tests, 165 tests pass); awaiting user approval for Step 2 (aggregate-only run on real data)**
 
 ---
 
@@ -173,10 +173,17 @@ Why: comparison and cost reasoning are what graders read.
 - [x] Real-time note (A6), limits (A7)
 - [x] README Part A section written
 
-### M3 — Part B slice and taxonomy (45 min)
-Why: taxonomy and slice define "correct"; changing them later invalidates labels.
-- [ ] `make_slice.py` + documented filters/seed/hash (B1)
-- [ ] `taxonomy.yaml` + labeling guide (B2)
+### M3 — Part B data source, sanitizer, sample, taxonomy, labeling and evaluation design (revised; NOT implemented beyond data verification)
+Why: fixes what "correct" means before any model exists; changing taxonomy/slice after labeling invalidates labels.
+- [x] 3a-3d. Source verification: official June 2026 export downloaded, hashed, fully inspected (aggregates only); D-16 accepted
+- [x] 3e-1. (DONE 2026-11-26; see section 9f) Install pinned spaCy + local model; sanitizer, sensitive-content flagger and ~100 synthetic tests (no real text)
+- [ ] 3e-2. Aggregate-only sanitizer run over the eligible population (replacement counts, residual scan, flag rates, failures)
+- [ ] 3e-3. User reviews 30 sanitized narratives locally; leak counts only; fix at rule level and redraw if any leak
+- [ ] 3e-4. Sanitizer sign-off by user
+- [ ] 3e-5. `make_slice.py`: dedup (SHA-256) + 30-1,500 words + balanced pilot (5 x 4) + proportional main (~400) + label/extension order; local gitignored manifest
+- [ ] 3e-6. Sanitized pilot reviewed (Claude reads only after the user's explicit go-ahead); taxonomy and labeling guide drafted with the user
+- [ ] 3e-7. Freeze taxonomy, guide, sampling procedure and evaluation plan with hashes; blank local label sheet (sanitized text only; columns include `contains_sensitive`)
+- [ ] 3e-8. Tests (dedup, length rule, disjointness, proportional allocation, reproducibility) and docs
 
 ### M4 — Part B hand labeling (45 min)
 Why: labeling before seeing model output avoids anchoring and reveals taxonomy weaknesses.
@@ -223,6 +230,9 @@ Why: reproducibility failure is the most avoidable loss; the live session weighs
 | Labeling bias | Label before model run; keep guide; note ambiguous items |
 | Can't explain code in live session | Keep code simple; rehearse (D5); log "explain-back" in AI_USAGE |
 | Scope creep | §11 cut list; SCOPE.md is the arbiter |
+| CFPB removed narratives from live data (verified: CSV header) | Use the official FOIA Narratives Archive (D-11); verify its structure with one small export before anything else |
+| Prefix-based estimates were misleading (Stage 3c prefix said 10.1% narratives overall; the full June file has 2.71%): never size or choose data from prefixes; use full-file aggregates | Done for June 2026 (Stage 3d) |
+| Recent archive exports may contain no narratives (Aug 2026: 0.00%) | Locate which exports have narratives via approved, bounded probes before choosing the pool; if none usable, escalate to user (HF mirror only with explicit approval) |
 | Missed AI disclosure | CLAUDE.md rule: update AI_USAGE.md every working session |
 
 ## 8. Definition of done
@@ -239,10 +249,104 @@ All §2 rows ☑, D1 verified from a clean clone, README/memo/AI_USAGE complete 
 | D-08 | Calibrate before using scores as probabilities in cost model | **Open for M2** | M1 showed severe miscalibration (bin [0.9,1) pred 0.97 vs observed 0.26) |
 | D-09 | Rule A (`p*Amount > c`) replaced by Rule B in config v2 after Stage 2a validation results (Rule A cost XGBoost EUR 1,726 at c=5 vs ~EUR 630 reference) | **Superseded by D-10** (kept as history) | Rule B was validation-informed. v1/v2 configs and hashes archived in `part_a/frozen/superseded_v*_config.*` |
 | D-10 | **Both rules retained (config v3).** Rule A = original rule specified in the approved M2 proposal before results; primary comparator. Rule B (`p > c/120.29`) = validation-informed secondary operating-policy alternative, an average-loss approximation, not transaction-specific, not independently pre-registered, no claim of theoretical superiority. Both evaluated once on test | **Decided** (user, option 1) | Rule A is principled under its assumptions but did poorly on validation, likely from amount-dependent over-prediction (not proven). Roles fixed before the test set is touched |
+| D-11 | **Part B data source: official CFPB FOIA Narratives Archive** (https://www.consumerfinance.gov/foia-requests/foia-electronic-reading-room/cfpb-consumer-complaint-database-narratives-archive/). Reason: the live CFPB CSV has no narrative column (verified 2026-11-26). The BEE-spoke-data Hugging Face mirror is NOT to be downloaded or used unless the official archive proves unusable AND the user explicitly approves | **Decided** (user) | Official source, same provider. Archive file structure/fields are UNVERIFIED until a first export is downloaded (needs approval). The user has already informed Stixor; no further email to Stixor |
+| D-14 | Aug 2026 export has 1 of 667,140 narratives (accepted as a documented finding). Stage 3b found narratives in all four older exports probed (prefix-based estimates, see M3 Stage 3b findings). Narrative availability declines over time (38.5% -> 27.9% -> 26.7% -> 15.9% -> 0.0%) | **Resolved in part** (user accepted the finding; continue with the official archive only) | Aug 14 date discrepancy: no official explanation found (FOIA index lists the archive as 'Created AUG 14, 2026'; the Aug file has receipts to Aug 31 and sent-to-company dates to Sep 11). Not treated as an error |
+| D-15 | Download of `CCDB_Export_19_June_2026.zip` | **Done** (user-approved; Stage 3d) | See D-16 and section 9d |
+| D-16 | **ACCEPTED (user, 2026-11-26): Part B dataset = official CFPB FOIA archive export `CCDB_Export_19_June_2026.zip`** (19,624,767 bytes; SHA-256 `3021c8af9eeed4971a92f15be21c7ce08cf3c1337151de255e5b12bf782049df`; 620,794 records; 16,820 non-empty narratives; 7,671 in the four payment products; full CRC test passed). Limitations carried forward: ONE month; only complaints whose narratives were published (publication-selection bias); narratives concentrated in the first file deciles (payment fill 75.7/74.6/72.8/16.1/13.0/0.1/0/0/0.1/0 %), so prefix estimates were misleading (10.1% vs 2.71% overall); unexplained day-level gaps (six days <=3% payment fill); CFPB states complaints are not representative; narratives from a transitional period before CFPB removed them | **Decided** | Evidence in section 9d |
+| D-17 | **APPROVED (user, 2026-11-26): exact deduplication with SHA-256.** Normalization: Unicode NFC + collapse whitespace + strip (case and punctuation kept); SHA-256 of the normalized text, computed locally; keep the earliest Date received, ties by smallest Complaint ID; no near-duplicate merging. Impact (payment narratives): 34 extra copies (0.44%): card 24, money transfer 9, checking 1, prepaid 0; 14 groups, largest 13; 57% of groups span >1 company, 29% >1 state, 36% >1 date (likely form letters from different consumers, whose frequency information is discarded). Aggregates recomputed with SHA-256: identical | **Approved** | Hashes and IDs stay in gitignored local files
+| D-18 | **APPROVED (user): length eligibility 30-1,500 words, applied after dedup.** Excludes 230 narratives below 30 words (3.0%) and 31 above 1,500 (0.4%); eligible population 7,376 (3,155 checking / 2,723 card / 1,290 money transfer / 208 prepaid). Results do not cover the excluded 3.4%; out-of-range inputs would route to a human in production | **Approved** | Direction of selection bias unknown
+| D-19 | **APPROVED: layered conservative sanitizer** (normalization; deterministic patterns; name cues; local spaCy NER; CFPB `XXXX` -> `[REDACTED]`; amounts, durations and company names kept), fail-closed, synthetic-only tests, no anonymization claim | **Approved** | Implementation awaits plan approval
+| D-20 | **APPROVED: balanced pilot of 5 complaints per product (20 total)**, disjoint from the main sample by ID and by text hash; main sample ~400 proportional (about 148 / 171 / 70 / 11) drawn from the eligible population after removing the pilot; user labels 60 (about 22 / 26 / 10-11 / 2); extension batch of 20 if <12 requires_human, maximum 80 | **Approved** | Prepaid and money transfer are exploratory
+| D-21 | **APPROVED: label the SANITIZED text** (the exact LLM input), with CFPB Product and Issue hidden; Issue only as a weak post-labeling check | **Approved** | Avoids label/input mismatch
+| D-12 | Part B data protection: narratives never committed; full Complaint ID manifest local + gitignored; commit only code, source details, hashes, filters and aggregate statistics; scan for residual PII; sanitize before any external LLM call; document the procedure | **Decided** (user) | Narratives are real consumer text that CFPB withdrew from the live database |
+| D-13 | Sampling/labeling parameters: ~400 main sample, payments-relevant products (names verified from data), proportional stratified, seed 42, separate pilot (disjoint), label 60, relabel 15 after a break, if <12 requires_human add one random batch of 20, max 80; CFPB Product/Issue hidden while labeling (Issue only a weak post-hoc check) | **Decided** (user) | See M3 proposal |
+| D-22 | spaCy 3.8.18 + `en_core_web_sm` 3.8.0 installed (wheel SHA-256 `1932429db727d4bff3deed6b34cfc05df17794f4a52eeb26cf8928f7c1a0fb85`, 12,806,118 bytes, from the official explosion/spacy-models GitHub release; zip integrity passed) | **Done** | Local only; 29 packages added, no existing pin changed; `uv pip check` clean |
+| D-23 | **Sensitive-content policy (user):** narratives flagged as sensitive are NEVER sent externally; they are routed straight to human review (`requires_human=true`, no LLM) AND are kept in the sample and the evaluation so `requires_human` performance is not artificially weakened. Evaluation reports end-to-end `requires_human` recall AND recall on the non-routed (LLM-handled) subset, the flagged-but-not-requires_human workload, and the flagger's own recall. A `contains_sensitive` label column is added to the labeling sheet (proposed, needs approval in the revised plan) | **Approved in principle** | Flagging is applied AFTER sampling, so flagged items stay eligible. Category/urgency are scored only on LLM-handled items |
+| D-24 | **APPROVED: user reviews 30 random sanitized narratives locally** (outside this chat, recording only leak counts by type). Limitation: 0 leaks in 30 gives a 95% upper bound of ~9.5% leaky narratives per narrative, so it reduces risk but does not prove safety | **Approved** | Sanitizer fixes must be rule-level, not item-specific; a fresh sample is drawn after any fix |
+| D-25 | `outputs/m3*.json` added to `.gitignore` (Part B aggregate outputs stay local; Part A outputs remain tracked) | **Done** | Verified with `git check-ignore` |
+| D-26 | **Step 1 refinements (user):** (1) `contains_sensitive` is a human-labeling field; it is labeled on SANITIZED text, which may conceal evidence, so its ground truth is limited in accuracy (documented). (2) Sensitive categories include financial account details, bank routing numbers, passwords, security answers and authentication credentials (implemented). (3) Flagged narratives stay in the evaluation but go straight to human review; they are NEVER sent to an external LLM and NEVER included in the pilot text shared with Claude. (4) If flagged records are removed from the externally reviewed pilot they are replaced by eligible records from the same product where possible; the ORIGINAL local manifest is preserved and every replacement is documented in a separate local log. (5) PII redaction (`sanitizer.py`, rewrites text) is kept strictly separate from sensitive-content detection (`sensitive_flags.py`, never rewrites; runs on raw text locally) in code, tests and docs | **Decided** | (4) will be implemented in Step 5 |
 | D-04 | Final taxonomy | **OPEN** until M3 | Must be frozen before labeling |
 | D-05 | Python 3.12 + uv venv; deps in `pyproject.toml`, pinned `requirements.txt` (pip-compatible) | **Decided** | No uv-only lockfile so reviewers can use plain pip. Tested on macOS arm64 only |
 
+## 9b. M3 Stage 3b findings (bounded range probes; aggregates only; no narrative text read)
+Method (validated on the downloaded Aug file: central directory over HTTP matches the local zip; a 2 MB compressed prefix inflated to
+31.9 MB that is byte-identical to local decompression). Only PREFIXES of a deflate stream are decodable, so each estimate uses the first
+~3 MB compressed. Row order is only roughly random (date-rank vs row-index correlation 0.11-0.46), so prefixes are NOT random samples
+and the Wilson CIs below understate real uncertainty.
+
+| Export (file size) | Records inspected | Non-empty narratives (prefix) | Payment-related with narrative (prefix): card / checking / money transfer / prepaid | Median words |
+|---|---|---|---|---|
+| Aug 2026 (10.5 MB; full file) | 667,140 | 1 (0.00%) | 0 | n/a |
+| Nov-Dec 2025 (63.9 MB) | 42,926 | 6,812 (15.9%) | 896: 364 / 338 / 151 / 43 | 115 |
+| Jul-Aug 2025 (84.2 MB) | 32,759 | 8,761 (26.7%) | 732: 265 / 280 / 164 / 23 | 128 |
+| Jan-Feb 2025 (75.5 MB) | 31,826 | 8,880 (27.9%) | 735: 300 / 278 / 110 / 47 | 111 |
+| Sep 2023-Mar 2024 (100.9 MB) | 25,068 | 9,647 (38.5%) | 1,373: 673 / 498 / 148 / 54 | 117 |
+
+All four expose the same 16 columns including Complaint ID, Product, Issue, Date received and the narrative; no consent column. All four
+payment-related product names appear with the same exact current names in every export. Residual-PII regex hits are rare but nonzero (e.g. 0-1 emails, 0-1 phones,
+6-76 URLs, 12-41 5-digit/ZIP-like strings per thousands of narratives); 'XXXX' redaction tokens appear in ~58-75% of narratives.
+Regexes do not guarantee anonymization.
+
+## 9c. M3 Stage 3c findings (bounded probes of the six 2026 exports; aggregates only)
+Same validated method (method re-validated: central directory matches, prefix byte-identical to local decompression). For all six: zip method 8,
+local header name/method match the central directory, no zlib error, the 16 columns are identical to the reference, stream truncated as expected
+(the whole-member CRC cannot be checked on a prefix). **Prefix counts are not full-export counts and are not representative:** within each 2026
+prefix 54-94% of rows come from a single week of Date received; narrative fill varies from 0.3% to 64% across weeks; first-half vs second-half
+fill falls in all six exports (e.g. Apr 3.4% -> 1.3%); product-run tests show non-random order. Do not compare prefix counts across exports (prefixes are 8-18% of 2026 files vs 3-5% of the earlier ones).
+
+| Export (file) | Prefix share of file | Records | Narratives (halves) | Payment records -> narratives (fill) | Card / checking / money transfer / prepaid | Median words |
+|---|---|---|---|---|---|---|
+| Sep 2023-Mar 2024 (100.9 MB) | 3.0% | 25,068 | 38.5% (39.5/37.5) | 2,240 -> 1,373 (61.3%) | 673 / 498 / 148 / 54 | 117 |
+| Jan-Feb 2025 (75.5 MB) | 4.0% | 31,826 | 27.9% (27.0/28.8) | 1,505 -> 735 (48.8%) | 300 / 278 / 110 / 47 | 111 |
+| Jul-Aug 2025 (84.2 MB) | 3.6% | 32,759 | 26.7% (26.2/27.3) | 1,324 -> 732 (55.3%) | 265 / 280 / 164 / 23 | 128 |
+| Nov-Dec 2025 (63.9 MB) | 4.7% | 42,926 | 15.9% (14.3/17.4) | 1,523 -> 896 (58.8%) | 364 / 338 / 151 / 43 | 115 |
+| Jan-Feb 2026 (36.8 MB) | 8.1% | 84,202 | 3.5% (4.4/2.5) | 2,902 -> 1,291 (44.5%) | 487 / 500 / 260 / 44 | 157 |
+| Mar 2026 (22.1 MB) | 13.6% | 70,986 | 5.1% (5.2/5.0) | 2,280 -> 1,323 (58.0%) | 512 / 528 / 255 / 28 | 146 |
+| Apr 2026 (23.0 MB) | 13.1% | 96,160 | 2.4% (3.4/1.3) | 3,394 -> 963 (28.4%) | 351 / 407 / 175 / 30 | 182 |
+| May 2026 (21.0 MB) | 14.3% | 72,905 | 4.4% (5.2/3.6) | 3,093 -> 1,322 (42.7%) | 569 / 455 / 251 / 47 | 171 |
+| **Jun 2026 (19.6 MB)** | 15.3% | 42,510 | 10.1% (11.3/8.9) | 2,819 -> 2,046 (72.6%) | 755 / 862 / 365 / 64 | 184 |
+| Jul 2026 (17.0 MB) | 17.7% | 53,133 | 7.2% (9.4/5.0) | 2,755 -> 1,838 (66.7%) | 695 / 732 / 348 / 63 | 184 |
+| Aug 2026 (10.5 MB; full file) | 100% | 667,140 | 0.0% | 0 | 0 | n/a |
+
+## 9d. M3 Stage 3d findings (FULL June 2026 export; aggregates only; no narrative text read, displayed or saved)
+File `CCDB_Export_19_June_2026.zip`: 19,624,767 bytes (equals server Content-Length), SHA-256 `3021c8af...82049df`, downloaded 2026-11-26 08:55:35 UTC, gitignored in `data/raw/`;
+full CRC test passed (nothing extracted to disk; the CSV is read in memory). 620,794 records, 16 columns, received 2026-06-01..06-30; no duplicate Complaint IDs, no fully duplicated rows.
+Empty cells: narrative 603,974; Sub-issue 7,022; Company public response 231,305; Tags 606,941; State 571; ZIP 465.
+
+| Product | Rows | With narrative | % | Narr. >=30 words | Narr. 30-1,500 words | Median words |
+|---|---|---|---|---|---|---|
+| Credit card | 7,453 | 2,840 | 38.1% | 2,754 | 2,744 | 217 |
+| Checking or savings account | 7,671 | 3,270 | 42.6% | 3,172 | 3,156 | 203 |
+| Money transfer, virtual currency, or money service | 3,037 | 1,340 | 44.1% | 1,303 | 1,299 | 190.5 |
+| Prepaid card | 523 | 221 | 42.3% | 209 | 208 | 171 |
+| **Payment-related total** | 18,684 | **7,671** | 41.1% | 7,438 | 7,407 | 205 |
+| All products | 620,794 | 16,820 | 2.71% | | | 182 |
+(credit reporting: 565,831 rows, 751 narratives = 0.13%; debt collection 18.5%).
+
+Prefix (Stage 3c) vs full file: overall fill 10.13% vs 2.71% (prefix overstated ~3.7x); payment-product fill 65-79% vs 38-44%. Narratives are concentrated by FILE POSITION: payment fill by file decile = 75.7, 74.6, 72.8, 16.1, 13.0, 0.1, 0, 0, 0.1, 0 percent, so the first-15% prefix over-represented the narrative-rich region.
+By receipt week payment fill is 30-50% (no monotone trend in June). By DAY it is very uneven and unexplained: six days (Jun 4, 5, 13, 19, 20, 27) have <=3% payment fill (e.g. 8 of 399) next to ~40-60% on other days.
+Duplicate narrative texts: 1,772 rows share a text with another row (1,440 extra copies, 8.6% of narratives). Word counts, all narratives: median 182, mean 238.6, p95 632, max 4,136; payment narratives: median 205, mean 256.6, p95 650, max 3,131.
+PII-pattern counts over all 16,820 narratives: email 0, US phone 0, SSN-like 0, 9+ digit 0, card-like 0, street address 0, URL 21 (22 matches), ZIP-like 23 (34), date-like 8; 'XXXX' redaction in 13,771 (81.9%), redacted-amount braces in 7,314 (43.5%).
+These regexes cannot detect names, free-text addresses without a street suffix, employers, medical details or account fragments; redaction tokens show redaction was applied, not that text is anonymous.
+
+## 9e. M3 Stage 3e planning aggregates (payment-related narratives, June 2026; `outputs/m3e_dedup_length_aggregates.json`; counts only)
+| Product | Narratives | Duplicate copies removed | After dedup | <30 words | >1,500 words | Eligible (dedup, 30-1,500) | Proportional share of 400 |
+|---|---|---|---|---|---|---|---|
+| Credit card | 2,840 | 24 | 2,816 | 83 | 10 | 2,723 | 147.7 |
+| Checking or savings account | 3,270 | 1 | 3,269 | 98 | 16 | 3,155 | 171.1 |
+| Money transfer, virtual currency, or money service | 1,340 | 9 | 1,331 | 37 | 4 | 1,290 | 70.0 |
+| Prepaid card | 221 | 0 | 221 | 12 | 1 | 208 | 11.3 |
+| **Total** | 7,671 | **34** | 7,637 | 230 | 31 | **7,376** | 400 |
+Alternative length cut-offs (before dedup): <20 words 101; <50 words 542; >1,000 words 106; >2,000 words 9. Eligible-narrative words: p25 121, median 211, p75 333, p95 637.5.
+
+## 9f. M3 Step 1 results (synthetic data only; no real narrative was processed)
+Files: `part_b/sanitizer.py` (PII redaction), `part_b/sensitive_flags.py` (sensitive-content detection), `tests/test_sanitizer.py` (139 parametrized test cases), `tests/test_sensitive_flags.py` (19 cases): 158 new cases; whole suite 165 passing (7 from Part A/setup).
+Sanitizer layers: normalization; e-mail (incl. obfuscated); URL; dates (numeric incl. CFPB-masked, ISO, textual day+month); SSN-like; ZIP+4 and ZIP with context; phones; last-4 / masked numbers; long digit runs, alphanumeric IDs and cue+number ids (not when they look like money); addresses and PO boxes; name cues (case-insensitive 'my name is', honorifics, closings); employer cues; CFPB `XXXX`; local spaCy NER for PERSON and GPE/LOC (protected brand list). Fail-closed `try_sanitize`.
+Measured on invented names: NER-only surname removal 19/20 (Capitalized) and 14/20 (lowercase); with the 'my name is' cue 20/20 for both. First-pass tests passed immediately, so adversarial synthetic probing was run: it found leaks (alphanumeric IDs, 5-digit account numbers, lowercase closing name, half-redacted `(at)` e-mail, a false positive on non-dollar amounts) that were fixed with general rules and regression tests.
+Known limitations (also asserted in a test): lowercase names with no cue and no NER hit, street names without a number, dates without a year, `XXXX 1234`, 4-digit account fragments after 'card'/'account', employers and indirect identifiers, amounts without a currency marker may become `[NUMBER_ID]`. Sensitive-content rules are blunt keyword patterns: false positives cost human workload, false negatives are a privacy risk; their real false-positive rate on the data is unknown until Step 2.
+
 ## 10. Open questions for the user
+- (M3, 2026-11-26) see the revised M3 proposal: first-download approval, which exports, who reads narratives (Claude vs sanitized only), commit labels or not, small-stratum rule, LLM-provider terms for sanitized text.
 - Which LLM provider (Claude API, other hosted, local)? Is there an API key budget?
 - Confirm memo topic (Part B)?
 
@@ -269,6 +373,8 @@ Short record of the two post-milestone questions. Full answers are given in chat
 | M6 | — | — |
 | M7 | — | — |
 | M8 | — | — |
+
+**Reproducibility note:** `part_a/final_test.py` (written after the config freeze, hence not in the config's `code_sha256`; 109 lines) has SHA-256 `1fe5342d1ef6228ad2f1ee95085e88f8fb27328ea06dac5e53b74968b1a2af90`. It was dry-run on validation and executed once on test; it refuses to run on test again.
 
 ---
 

@@ -200,11 +200,25 @@ layer, feature store, latency test or load test has been built;** everything her
 | Config v1 (superseded) | `7c9b1f4d7b9359723be94ebd3f9fd1fae87c22ced3bb51211cb271bdf1a266c2` |
 | Test results `outputs/m2_test_results.json` | `f54b10a50105ac741d2d00d397ac02d959c92aa739bbaba9445ee181b14eb985` |
 
-`part_a/final_test.py` was written after the freeze, so it is not among the config's code hashes; it only loads frozen artifacts and
-refuses to run on the test split twice.
+`part_a/final_test.py` was written after the freeze, so it is not among the config's code hashes; its own SHA-256 is
+`1fe5342d1ef6228ad2f1ee95085e88f8fb27328ea06dac5e53b74968b1a2af90`. It only loads frozen artifacts (after verifying their hashes) and refuses to run on the test split twice.
 
-## Part B: LLM triage
-_To be written (M3-M6)._
+## Part B: LLM triage (in progress)
+
+**Data source and provenance.** Official CFPB FOIA "Consumer Complaint Database Narratives Archive"
+(https://www.consumerfinance.gov/foia-requests/foia-electronic-reading-room/cfpb-consumer-complaint-database-narratives-archive/),
+because the live database no longer carries narratives. File used: `CCDB_Export_19_June_2026.zip` (19,624,767 bytes, SHA-256
+`3021c8af9eeed4971a92f15be21c7ce08cf3c1337151de255e5b12bf782049df`, downloaded 2026-11-26). It is stored in the gitignored `data/raw/`;
+**raw complaint narratives, the Complaint ID manifest and any complaint-level labels are never committed**, so the labeled evaluation cannot be
+reproduced from the repository alone (the public archive file and the committed sampling code can be re-run, but the human labels stay local).
+Known limitations of this source: a single month (June 2026); only complaints whose narratives were published (selection); narratives are concentrated in the first deciles of the file and
+the day-level availability has unexplained gaps; the CFPB states its complaints are not representative; prefix-based size estimates proved misleading (10.1% vs 2.71% overall).
+**Data handling.** Two separate mechanisms: (1) *PII redaction* (`part_b/sanitizer.py`) rewrites text, replacing direct identifiers with typed placeholders using
+rule-based patterns plus a local spaCy NER model (`en_core_web_sm` 3.8.0, wheel SHA-256 `1932429db727d4bff3deed6b34cfc05df17794f4a52eeb26cf8928f7c1a0fb85`); it does not guarantee
+anonymization (lowercase names without cues, unusual formats, employers and indirect identifiers can slip through). (2) *Sensitive-content detection* (`part_b/sensitive_flags.py`) never
+rewrites text; it flags categories such as health, minors, government IDs, account details, credentials, legal-case identifiers and self-harm on the raw text, locally. Flagged narratives are never sent to
+an external service and go straight to human review, but they stay in the evaluation. Both are tested with synthetic text only.
+Status: data verification done (aggregates only); sanitizer, sampling, labeling and the LLM pipeline are not built yet.
 
 ## What I cut and why
 _To be completed; see SPECS.md §11 for the planned cut list._
