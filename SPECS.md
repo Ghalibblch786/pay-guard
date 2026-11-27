@@ -4,7 +4,7 @@
 > and the **Milestones** checkboxes current as work progresses. It must never contradict
 > `SCOPE.md` (frozen). If it would, stop and ask the user.
 
-Last updated: 2026-11-27 · Current milestone: **Pushed and fresh-clone tested; rehearsal outstanding**
+Last updated: 2026-11-28 · Current milestone: **Summaries rated; recording (optional), submission and rehearsal outstanding**
 
 ---
 
@@ -38,7 +38,7 @@ Status: ☐ todo · ◐ in progress · ☑ done
 | B5 | Safety rules | Deterministic keyword/regex layer forces `requires_human=true` for fraud allegations, legal threats, regulator mentions, safety/self-harm language | ☑ |
 | B6 | Prompt-injection defence + tests | ≥ 3–5 adversarial complaints; delimiters + data-not-instructions prompt; results reported | ☑ run and reported: 6/9; model followed the downgrade in 3/3, rules caught 2 |
 | B7 | Hand-labeled eval set | ≥ 50 complaints labeled **before** viewing model output; labeling guide; ambiguity noted | ☑ 30 labels (target of 50 superseded, D-34; SCOPE asks for a small sample) |
-| B8 | Evaluation | Per-field metrics; confusion matrix; urgency scored ordinally; `requires_human` recall emphasised; summary faithfulness spot-check | ◐ done except summary faithfulness (not rated) |
+| B8 | Evaluation | Per-field metrics; confusion matrix; urgency scored ordinally; `requires_human` recall emphasised; summary faithfulness spot-check | ☑ summary faithfulness: 10 rated (1 faithful, 8 minor omission, 1 unsupported); see 9q |
 | B9 | Scale measurement plan | README section: audited sampling, agreement, distribution drift, escalation rate | ☑ |
 | B10 | Cost/latency | Tokens + latency measured on slice; extrapolated to 50k/month with assumptions | ☑ (server prices are an assumption) |
 | B11 | Prompt iteration log | Each prompt version + score recorded | ☑ |
@@ -200,7 +200,7 @@ Why: robustness before accuracy; caching keeps iteration cheap.
 
 ### M6 — Part B evaluation and adversarial tests (75 min)
 Why: highest-weighted evidence; spend saved Part A tuning time here.
-- [x] Metrics vs hand labels, confusion matrix (B8; summary faithfulness not rated)
+- [x] Metrics vs hand labels, confusion matrix, 10 summary ratings (B8)
 - [x] Injection + sensitive-case tests (B6)
 - [x] 1–2 measured prompt iterations logged (B11)
 - [x] Cost at 50k/month, scale-measurement plan (B9, B10)
@@ -442,6 +442,9 @@ It also does not show that the 18.29% local-only routing rate is appropriate.
 
 ### 9p. Fresh-clone test of `a1ab783` (2026-11-27)
 `git clone` from GitHub, new Python 3.12 venv from `requirements.txt`: install ok; without data 400 passed, 3 skipped; `reproduce_slice` PASS (manifest hash); with `creditcard.csv` 403 passed; `final_test --split val` verified the frozen config and left `outputs/m2_dryrun_val.json` unchanged (identical). Zip and CSV were copied or read from the local machine, not re-downloaded. Not run: Ollama model runs, other Part A scripts, the test split; same macOS machine. Temporary clone deleted.
+
+### 9q. Summary faithfulness (2026-11-27/28)
+The author rated all 10 sampled summaries locally: faithful 1, minor omission 8, unsupported 1 (supersedes "not done" in 9o and the >=20 samples design note in section 5). 95% Wilson for unsupported about 0.02-0.40 (post hoc). Fuller rating meanings were written by AI after the other scores were seen; one rater, not blind to aggregate results. One typo in the rating sheet was corrected by the author. AI did not read the summaries or complaints. Labels unchanged; no prompt or rule change.
 
 ## 10. Open questions for the user
 - (M3, 2026-11-26) see the revised M3 proposal: first-download approval, which exports, who reads narratives (Claude vs sanitized only), commit labels or not, small-stratum rule, LLM-provider terms for sanitized text.

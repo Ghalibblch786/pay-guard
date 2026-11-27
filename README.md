@@ -8,7 +8,7 @@ Parts A and C are complete. Part B runs end to end, but **its evaluation shows i
 |---|---|---|
 | **Part A: fraud** | Test PR-AUC: XGBoost 0.757, logistic regression 0.700 | Difference not established (95% CI -0.031 to +0.152); only 52 test frauds |
 | **Part A: operating point** | Start a trial with logistic regression, Rule B, review cost EUR 5: [39 of 52 frauds, 20 false alarms](#recommended-operating-point) | Chosen **after** seeing test results; costs are hypothetical |
-| **Part B: triage** | Pipeline runs end to end on a local model, but is **not fit for use** | Sent 30/30 labeled and 400/400 sampled records to a human; category 10/26, tying a majority guess; one labeler |
+| **Part B: triage** | Pipeline runs end to end on a local model, but is **not fit for use** | Sent 30/30 labeled and 400/400 sampled records to a human; category 10/26, tying a majority guess; 1 of 10 rated summaries unsupported (only 1 fully faithful); one labeler |
 | **Part B: safety** | Prompt-injection defence is incomplete | 6 of 9 attack and safety cases passed; one injected complaint avoided escalation |
 | **Part C: [memo.md](memo.md)** | Fund offline evaluation only | Capacity prices and review minutes are assumptions |
 
@@ -391,7 +391,18 @@ The synthetic cases did not predict this: there the final prompt over-escalated 
 - Most common single error: 5 of 10 `account_access_or_closure` records went to `payment_or_transfer_problem`. Fee or billing records went to `dispute_or_refund` in 3 of 6. Fraud: 1 of 3 correct (too few to judge).
 - Urgency is the most encouraging number: 3 below and 2 above my label, and no `high` predicted `low`. It is still 26 records, a two-level label distribution and one labeler.
 - Flag workload: 3 of the 30 were escalated only by flag routing although I answered "no" (flagged records get no model call).
-- Summary faithfulness: **not done** (no summaries rated).
+
+**Summary faithfulness** (10 random model-handled evaluation records, rated by me against the redacted text the model's input came from):
+
+| Rating | Meaning | Count |
+|---|---|---|
+| Faithful | every claim supported, and the main problem and what matters for handling it are included | **1/10** |
+| Minor omission | every claim supported, a useful detail left out, main problem still clear | **8/10** |
+| Unsupported | anything wrong or made up, or the main problem missed badly enough to mislead an agent | **1/10** |
+
+- In 9 of 10 I found no unsupported claim, but **only 1 of 10 was also complete**.
+- **One summary in ten would be unsafe to rely on** by this definition. With 10 ratings the 95% Wilson interval for that rate is about **2% to 40%**†, so this neither shows summaries are reliable nor measures how often they fail. The category combines invented claims with a badly missed main problem; which applied was not recorded separately.
+- Caveats: one rater, who already knew the aggregate scores above; the three category names were frozen in the plan, but the fuller meanings in this table were written **after** the other scores were seen. An agent must be able to see the original complaint next to any summary.
 
 ### Operations, cost and latency
 Measured on an Apple M2 laptop with 8 GB RAM, one request at a time ([main run](outputs/m5_run_main_v3.json), [evaluation run](outputs/m5_run_eval_v3.json)):
@@ -439,6 +450,6 @@ Thresholds and rollout gates are in [memo.md](memo.md).
 | More sanitizer fixes and review batches | Two review concerns were indirect identifiers that rules are unlikely to fix; time | No sign-off |
 | Pilot check of the taxonomy, labeled development set on real data | Time and labeling effort | Taxonomy unvalidated on real data; prompts tuned only on invented cases |
 | Relabeling check, 20-record extension, second labeler | Time | Label consistency unknown; wide intervals |
-| 20 summary ratings, reduced to up to 10 | Time | Weak faithfulness evidence |
+| 20 summary ratings, reduced to 10 | Time | Weak faithfulness evidence: the rate of bad summaries is barely constrained |
 | UI, fine-tuning, real-time serving, feature store | Out of scope or not needed for feasibility | None for this question; see the memo for production |
 

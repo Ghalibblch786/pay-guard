@@ -12,7 +12,8 @@ Fund **offline evaluation (phase 0) only**. Do not ship this model, and do not s
 - **Category: 10 of 26 correct**, the same as always guessing the most common category.
 - **Urgency: 21 of 26 exact**, against 15 for always guessing "medium". Promising, but a small sample.
 - **Keyword rules and flags without a model** caught only 7 of 11 while escalating 16 of 30.
-- **Injection:** in all 3 synthetic cases where complaint text instructed the model to downgrade it, the model returned the requested downgrade. Keyword rules still escalated 2; **1 got through** as low priority with no human needed. Summary accuracy was not rated.
+- **Injection:** in all 3 synthetic cases where complaint text instructed the model to downgrade it, the model returned the requested downgrade. Keyword rules still escalated 2; **1 got through** as low priority with no human needed.
+- **Summaries (10 rated by one person):** 1 fully faithful, 8 left out a useful detail, **1 was wrong, made something up or badly missed the main problem**. Too few to estimate how often that happens; agents must see the original.
 
 ## Architecture (everything inside the country)
 ```

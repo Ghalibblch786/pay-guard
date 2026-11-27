@@ -210,6 +210,8 @@ Final checks by AI: 403 tests, freeze verification, rescoring, one live syntheti
 
 **Update (2026-11-27, push and fresh-clone test):** AI re-ran the leak scan and tests, committed the four documents as `a1ab783`, pushed, and tested a fresh clone (results in SPECS 9p), including the author-approved Part A validation-only check, which reproduced the saved file exactly. The test split was not used. These record-keeping edits were made after that commit.
 
+**Update (2026-11-27/28, brief comparison and summary ratings):** at the author's request AI compared the project with the assignment text the author pasted (no files changed then), and helped plan the optional screen recording. The author rated all 10 summaries in their own terminal and fixed one typo; AI wrote the instructions, the fuller rating meanings and invented examples, counted totals only, did not read the summaries or complaint text, and added the results and their limits to README, memo and SPECS.
+
 <!-- Claude: append new session entries below this line, newest last. Keep entries specific. -->
 
 **Update (2026-11-27, project overview):** the author asked for a plain-language overview of the project. AI read the project documents and some of the code, listed files and docstrings, ran the test suite (403 passed) and explained the project in chat with text diagrams. No narrative text or labels read. Only this entry changed; no code, results or SPECS change; no commit. The author made no new decisions.

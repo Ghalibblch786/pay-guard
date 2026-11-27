@@ -149,10 +149,10 @@
   },
   "flag_only_workload_among_human_no": 3,
   "summary_faithfulness": {
-    "rated": 0,
+    "rated": 10,
     "of": 10,
-    "faithful": 0,
-    "minor_omission": 0,
-    "unsupported": 0
+    "faithful": 1,
+    "minor_omission": 8,
+    "unsupported": 1
   }
 }
