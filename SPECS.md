@@ -4,7 +4,7 @@
 > and the **Milestones** checkboxes current as work progresses. It must never contradict
 > `SCOPE.md` (frozen). If it would, stop and ask the user.
 
-Last updated: 2026-11-27 · Current milestone: **M8: README gaps fixed; commit, push, fresh-clone test, author confirmations and rehearsal outstanding**
+Last updated: 2026-11-27 · Current milestone: **Pushed and fresh-clone tested; rehearsal outstanding**
 
 ---
 
@@ -57,7 +57,7 @@ Status: ☐ todo · ◐ in progress · ☑ done
 ### Deliverables / policy
 | ID | Requirement | Status |
 |---|---|---|
-| D1 | Runs from clean env (fresh venv + fresh clone tested) | ◐ clean file copy + fresh venv passed; fresh `git clone` needs a commit |
+| D1 | Runs from clean env (fresh venv + fresh clone tested) | ☑ fresh `git clone` of `a1ab783` (macOS): install, tests, sample rebuild, Part A validation check; model runs not repeated there |
 | D2 | README: setup, approach, results, what was cut and why | ☑ Part A download and run instructions added (derived from the code; commands not re-run); results summary and key files first |
 | D3 | `memo.md` | ☑ |
 | D4 | `AI_USAGE.md` accurate and specific | ◐ current; author to confirm accuracy |
@@ -212,7 +212,7 @@ Why: written last so it is grounded in real findings; cutting to 2 pages makes i
 
 ### M8 — Polish and rehearsal (60–75 min)
 Why: reproducibility failure is the most avoidable loss; the live session weighs as much as the submission.
-- [~] Clean-env test: clean file copy + fresh venv passed; fresh clone pending commit (D1)
+- [x] Clean-env test: fresh clone + fresh venv passed (D1)
 - [~] README finalised (D2); `AI_USAGE.md` updated, awaiting author confirmation (D4)
 - [ ] Rehearse walkthrough + 3 live modifications (D5)
 - [ ] Optional recording (D6)
@@ -440,6 +440,9 @@ It also does not show that the 18.29% local-only routing rate is appropriate.
 - Summary faithfulness: not done (sheet created locally, 0 of 10 rated).
 - Checks: 403 tests pass; freeze v1 verifies; rescoring reproduces the metrics (only the faithfulness field changed from "not done" to "0 of 10" once the sheet existed); live uncached synthetic record processed end to end; SCOPE and Part A unchanged; no data/secret files visible to git. Scan of 98 commit-visible files: 0 record hashes, 0 Complaint IDs; 3 exact 8-word overlaps with the eligible narratives, all generic phrases in invented test text (4 narratives); shorter copying would not be detected.
 
+### 9p. Fresh-clone test of `a1ab783` (2026-11-27)
+`git clone` from GitHub, new Python 3.12 venv from `requirements.txt`: install ok; without data 400 passed, 3 skipped; `reproduce_slice` PASS (manifest hash); with `creditcard.csv` 403 passed; `final_test --split val` verified the frozen config and left `outputs/m2_dryrun_val.json` unchanged (identical). Zip and CSV were copied or read from the local machine, not re-downloaded. Not run: Ollama model runs, other Part A scripts, the test split; same macOS machine. Temporary clone deleted.
+
 ## 10. Open questions for the user
 - (M3, 2026-11-26) see the revised M3 proposal: first-download approval, which exports, who reads narratives (Claude vs sanitized only), commit labels or not, small-stratum rule, LLM-provider terms for sanitized text.
 - Which LLM provider (Claude API, other hosted, local)? Is there an API key budget?
@@ -507,7 +510,7 @@ For each milestone: proposal drafted → approved by user → executed → two r
 - [x] Part B: scale-measurement plan written
 
 **Code quality**
-- [ ] Runs from a fresh clone + fresh venv (D1)
+- [x] Runs from a fresh clone + fresh venv (D1)
 - [x] Small test suite passes
 - [x] Seeds fixed; slice reproducible (hash matches)
 - [x] No secrets or data committed
@@ -526,6 +529,6 @@ For each milestone: proposal drafted → approved by user → executed → two r
 - [ ] All SCOPE §7 deliverables present (code, README, memo, AI_USAGE; optional recording)
 - [x] SCOPE.md unchanged since creation (unless user requested edits)
 - [ ] SCOPE §3–§5 "Required" items each verified against this spec (§2 all ☑)
-- [ ] Repo pushed to GitHub; link works for reviewers
+- [x] Repo pushed to GitHub; link works for reviewers (public, checked without login)
 - [ ] Live-session rehearsal done: walkthrough of every file + 3 live modifications (e.g. swap metric, change threshold, add a category)
 - [ ] Can explain every line and every decision without notes

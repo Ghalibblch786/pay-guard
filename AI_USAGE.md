@@ -208,6 +208,8 @@ Final checks by AI: 403 tests, freeze verification, rescoring, one live syntheti
 
 **Note on commit `5a9ee57` (2026-11-27 21:46):** this earlier commit of the Part B work and memo, already on GitHub, carries the author's Git identity and a Claude co-author line. It was not made by AI in the conversation that wrote this note. Statements in earlier entries that nothing was committed refer to the time they were written; AI did not re-check the Git log before saying so after the three fixes. The commit that adds this note contains the three fixes and the confirmations.
 
+**Update (2026-11-27, push and fresh-clone test):** AI re-ran the leak scan and tests, committed the four documents as `a1ab783`, pushed, and tested a fresh clone (results in SPECS 9p), including the author-approved Part A validation-only check, which reproduced the saved file exactly. The test split was not used. These record-keeping edits were made after that commit.
+
 <!-- Claude: append new session entries below this line, newest last. Keep entries specific. -->
 
 **Update (2026-11-27, project overview):** the author asked for a plain-language overview of the project. AI read the project documents and some of the code, listed files and docstrings, ran the test suite (403 passed) and explained the project in chat with text diagrams. No narrative text or labels read. Only this entry changed; no code, results or SPECS change; no commit. The author made no new decisions.
