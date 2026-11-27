@@ -1,0 +1,158 @@
+{
+  "prompt": "v3",
+  "freeze_version": 1,
+  "labels_sha256": "2ac726e2f93c5b0928e6e377981752de6c6a131214c04005e2d7d4d193f5422e",
+  "n_labeled": 30,
+  "routes": {
+    "model": 26,
+    "flagged_human_only": 4
+  },
+  "n_ambiguous": 1,
+  "human_category_counts": {
+    "account_access_or_closure": 11,
+    "fees_interest_or_billing": 8,
+    "dispute_or_refund": 4,
+    "payment_or_transfer_problem": 3,
+    "unauthorized_or_fraud": 3,
+    "service_conduct": 1
+  },
+  "human_urgency_counts": {
+    "high": 13,
+    "medium": 17
+  },
+  "human_requires_human_yes": 11,
+  "category_model_handled": {
+    "n": 26,
+    "correct": 10,
+    "accuracy": 0.385,
+    "accuracy_ci95": [
+      0.231,
+      0.577
+    ],
+    "macro_f1": 0.332,
+    "macro_f1_ci95": [
+      0.166,
+      0.551
+    ],
+    "majority_baseline": {
+      "category": "account_access_or_closure",
+      "accuracy": 0.385
+    },
+    "confusion_human_to_model": {
+      "account_access_or_closure": {
+        "payment_or_transfer_problem": 5,
+        "dispute_or_refund": 1,
+        "account_access_or_closure": 3,
+        "unauthorized_or_fraud": 1
+      },
+      "dispute_or_refund": {
+        "dispute_or_refund": 2,
+        "payment_or_transfer_problem": 1
+      },
+      "fees_interest_or_billing": {
+        "fees_interest_or_billing": 2,
+        "dispute_or_refund": 3,
+        "unauthorized_or_fraud": 1
+      },
+      "payment_or_transfer_problem": {
+        "payment_or_transfer_problem": 2,
+        "account_access_or_closure": 1
+      },
+      "service_conduct": {
+        "account_access_or_closure": 1
+      },
+      "unauthorized_or_fraud": {
+        "account_access_or_closure": 2,
+        "unauthorized_or_fraud": 1
+      }
+    }
+  },
+  "urgency_model_handled": {
+    "n": 26,
+    "exact": 21,
+    "within_one": 26,
+    "model_higher": 2,
+    "model_lower": 3,
+    "human_high_model_low": 0
+  },
+  "requires_human": {
+    "end_to_end_all": {
+      "n": 30,
+      "tp": 11,
+      "fp": 19,
+      "fn": 0,
+      "tn": 0,
+      "recall": 1.0,
+      "recall_ci95": [
+        1.0,
+        1.0
+      ],
+      "precision": 0.367,
+      "escalation_rate": 1.0
+    },
+    "model_handled_final": {
+      "n": 26,
+      "tp": 10,
+      "fp": 16,
+      "fn": 0,
+      "tn": 0,
+      "recall": 1.0,
+      "recall_ci95": [
+        1.0,
+        1.0
+      ],
+      "precision": 0.385,
+      "escalation_rate": 1.0
+    },
+    "model_handled_model_alone": {
+      "n": 26,
+      "tp": 10,
+      "fp": 16,
+      "fn": 0,
+      "tn": 0,
+      "recall": 1.0,
+      "recall_ci95": [
+        1.0,
+        1.0
+      ],
+      "precision": 0.385,
+      "escalation_rate": 1.0
+    },
+    "baseline_rules_and_flags_no_model": {
+      "n": 30,
+      "tp": 7,
+      "fp": 9,
+      "fn": 4,
+      "tn": 10,
+      "recall": 0.636,
+      "recall_ci95": [
+        0.333,
+        0.909
+      ],
+      "precision": 0.438,
+      "escalation_rate": 0.533
+    },
+    "baseline_always_escalate": {
+      "n": 30,
+      "tp": 11,
+      "fp": 19,
+      "fn": 0,
+      "tn": 0,
+      "recall": 1.0,
+      "recall_ci95": [
+        1.0,
+        1.0
+      ],
+      "precision": 0.367,
+      "escalation_rate": 1.0
+    }
+  },
+  "flag_only_workload_among_human_no": 3,
+  "summary_faithfulness": {
+    "rated": 0,
+    "of": 10,
+    "faithful": 0,
+    "minor_omission": 0,
+    "unsupported": 0
+  }
+}

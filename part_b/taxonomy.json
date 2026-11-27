@@ -1,0 +1,13 @@
+{
+  "status": "Written without reading any complaint and NOT checked against real data (pilot check dropped, SPECS D-32). Frozen by part_b/freeze_plan.py.",
+  "categories": [
+    {"id": "unauthorized_or_fraud", "team": "Fraud", "definition": "Money, a card, an account or identity was used or taken without consent, or the person was deceived into paying or sharing access."},
+    {"id": "dispute_or_refund", "team": "Disputes", "definition": "A non-fraud problem with a purchase or charge the person knew about: goods or service not received or not as agreed, a refund or credit not given, or how such a dispute was handled."},
+    {"id": "payment_or_transfer_problem", "team": "Payments operations", "definition": "A payment, transfer, deposit, withdrawal or cheque that failed, is delayed, went to the wrong place or has the wrong amount, with no fraud described."},
+    {"id": "account_access_or_closure", "team": "Account operations", "definition": "Account opening, login or verification, a freeze, hold, restriction or closure, and access to the money because of it."},
+    {"id": "fees_interest_or_billing", "team": "Billing", "definition": "Fees, interest, rates, rewards or promotions, statements, balances or billing terms."},
+    {"id": "service_conduct", "team": "Customer care", "definition": "The main complaint is how the company communicated or behaved, with no other category's problem at its core."},
+    {"id": "other", "team": "General triage", "definition": "None of the above fits, or the text is too unclear to route."}
+  ],
+  "urgency_levels": ["low", "medium", "high"]
+}

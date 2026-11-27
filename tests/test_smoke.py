@@ -3,8 +3,7 @@ import numpy as np
 
 
 def test_imports():
-    import pandas, sklearn, pydantic, yaml, matplotlib  # noqa: F401
-    from google import genai  # noqa: F401
+    import pandas, sklearn, pydantic, httpx, matplotlib, spacy  # noqa: F401
 
 
 def test_xgboost_trains():

@@ -1,0 +1,27 @@
+{
+  "subset": "dev",
+  "prompt": "v1",
+  "model": "llama3.2:3b",
+  "model_digest": "a80c4f17acd55265feec403c7aef86be0c25983ab279d83f3bcd3abbcb5b8b72",
+  "options": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 350
+  },
+  "records": 20,
+  "routes": {
+    "model": 20
+  },
+  "model_calls_not_cached": 20,
+  "records_needing_retry": 0,
+  "error_codes": {},
+  "latency_s": {
+    "median": 7.69,
+    "p95": 11.23,
+    "mean": 8.49
+  },
+  "prompt_tokens_mean": 507,
+  "output_tokens_mean": 82,
+  "wall_seconds": 172.5
+}

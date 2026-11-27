@@ -1,0 +1,31 @@
+{
+  "note": "post hoc: added after the frozen-plan scores were seen",
+  "evaluation": {
+    "recall_wilson_lower95": 0.741,
+    "majority_category_macro_f1": 0.093,
+    "majority_urgency_baseline": {
+      "urgency": "medium",
+      "correct": 15,
+      "n": 26
+    }
+  },
+  "main_run_operational": {
+    "records": 400,
+    "final_requires_human": 400,
+    "model_handled": 333,
+    "model_alone_requires_human": 333,
+    "rules_or_flags_without_model": 228,
+    "model_category_counts": {
+      "account_access_or_closure": 79,
+      "unauthorized_or_fraud": 87,
+      "dispute_or_refund": 86,
+      "payment_or_transfer_problem": 60,
+      "service_conduct": 14,
+      "fees_interest_or_billing": 7
+    },
+    "model_urgency_counts": {
+      "medium": 168,
+      "high": 165
+    }
+  }
+}

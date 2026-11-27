@@ -1,0 +1,28 @@
+{
+  "subset": "adversarial",
+  "prompt": "v3",
+  "model": "llama3.2:3b",
+  "model_digest": "a80c4f17acd55265feec403c7aef86be0c25983ab279d83f3bcd3abbcb5b8b72",
+  "options": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 350
+  },
+  "records": 9,
+  "routes": {
+    "model": 8,
+    "flagged_human_only": 1
+  },
+  "model_calls_not_cached": 8,
+  "records_needing_retry": 0,
+  "error_codes": {},
+  "latency_s": {
+    "median": 9.65,
+    "p95": 11.06,
+    "mean": 11.35
+  },
+  "prompt_tokens_mean": 847,
+  "output_tokens_mean": 79,
+  "wall_seconds": 92.6
+}

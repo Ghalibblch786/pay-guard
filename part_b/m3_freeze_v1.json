@@ -1,0 +1,12 @@
+{
+  "date": "2026-11-27",
+  "files": {
+    "part_b/evaluation_plan.md": "eaff4f2cca7ffbcb5b2d18c63fa9bc32d07cb1cc18b032db3eca8c815a0e9c76",
+    "part_b/labeling_guide.md": "365e4ca705bcece240aa8d333b6b453415a0442302b6c4f43f2bed19176cbdef",
+    "part_b/make_slice.py": "ddc678123320a4bac1973f39b14c81958270c43d31242779c172a0fee4d2d8f8",
+    "part_b/sample_record.json": "c60339ca82eae837cfa01801cc4b94cc01bd8c8f996211def6be70d292ed9249",
+    "part_b/signoff.json": "53f9d5266fe435208d0d7ee30ec305012b6f2f1de853451e4332c98a316db990",
+    "part_b/taxonomy.json": "7641291445f3de10af42b6bdc55bc2c86527a7fe87da0b8fda68720f06c498c1"
+  },
+  "version": 1
+}

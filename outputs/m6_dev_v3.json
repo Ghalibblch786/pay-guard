@@ -1,0 +1,147 @@
+{
+  "n_labeled": 20,
+  "routes": {
+    "model": 20
+  },
+  "n_ambiguous": 0,
+  "human_category_counts": {
+    "unauthorized_or_fraud": 3,
+    "account_access_or_closure": 3,
+    "dispute_or_refund": 3,
+    "payment_or_transfer_problem": 3,
+    "fees_interest_or_billing": 4,
+    "service_conduct": 3,
+    "other": 1
+  },
+  "human_urgency_counts": {
+    "high": 4,
+    "medium": 13,
+    "low": 3
+  },
+  "human_requires_human_yes": 7,
+  "category_model_handled": {
+    "n": 20,
+    "correct": 15,
+    "accuracy": 0.75,
+    "accuracy_ci95": [
+      0.55,
+      0.9
+    ],
+    "macro_f1": 0.597,
+    "macro_f1_ci95": [
+      0.46,
+      0.8
+    ],
+    "majority_baseline": {
+      "category": "fees_interest_or_billing",
+      "accuracy": 0.2
+    },
+    "confusion_human_to_model": {
+      "account_access_or_closure": {
+        "account_access_or_closure": 3
+      },
+      "dispute_or_refund": {
+        "dispute_or_refund": 3
+      },
+      "fees_interest_or_billing": {
+        "fees_interest_or_billing": 3,
+        "dispute_or_refund": 1
+      },
+      "other": {
+        "service_conduct": 1
+      },
+      "payment_or_transfer_problem": {
+        "payment_or_transfer_problem": 3
+      },
+      "service_conduct": {
+        "service_conduct": 3
+      },
+      "unauthorized_or_fraud": {
+        "payment_or_transfer_problem": 1,
+        "dispute_or_refund": 1,
+        "account_access_or_closure": 1
+      }
+    }
+  },
+  "urgency_model_handled": {
+    "n": 20,
+    "exact": 14,
+    "within_one": 20,
+    "model_higher": 4,
+    "model_lower": 2,
+    "human_high_model_low": 0
+  },
+  "requires_human": {
+    "end_to_end_all": {
+      "n": 20,
+      "tp": 7,
+      "fp": 9,
+      "fn": 0,
+      "tn": 4,
+      "recall": 1.0,
+      "recall_ci95": [
+        1.0,
+        1.0
+      ],
+      "precision": 0.438,
+      "escalation_rate": 0.8
+    },
+    "model_handled_final": {
+      "n": 20,
+      "tp": 7,
+      "fp": 9,
+      "fn": 0,
+      "tn": 4,
+      "recall": 1.0,
+      "recall_ci95": [
+        1.0,
+        1.0
+      ],
+      "precision": 0.438,
+      "escalation_rate": 0.8
+    },
+    "model_handled_model_alone": {
+      "n": 20,
+      "tp": 7,
+      "fp": 9,
+      "fn": 0,
+      "tn": 4,
+      "recall": 1.0,
+      "recall_ci95": [
+        1.0,
+        1.0
+      ],
+      "precision": 0.438,
+      "escalation_rate": 0.8
+    },
+    "baseline_rules_and_flags_no_model": {
+      "n": 20,
+      "tp": 2,
+      "fp": 0,
+      "fn": 5,
+      "tn": 13,
+      "recall": 0.286,
+      "recall_ci95": [
+        0.0,
+        0.701
+      ],
+      "precision": 1.0,
+      "escalation_rate": 0.1
+    },
+    "baseline_always_escalate": {
+      "n": 20,
+      "tp": 7,
+      "fp": 13,
+      "fn": 0,
+      "tn": 0,
+      "recall": 1.0,
+      "recall_ci95": [
+        1.0,
+        1.0
+      ],
+      "precision": 0.35,
+      "escalation_rate": 1.0
+    }
+  },
+  "flag_only_workload_among_human_no": 0
+}

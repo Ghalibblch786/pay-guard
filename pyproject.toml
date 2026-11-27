@@ -10,9 +10,7 @@ dependencies = [
     "xgboost",
     "matplotlib",
     "pydantic>=2",
-    "pyyaml",
-    "python-dotenv",
-    "google-genai",
+    "httpx",  # client for the LOCAL Ollama server
     "pytest",
     "spacy>=3.8,<3.9",
     # local NER model for the Part B sanitizer; wheel SHA-256 1932429db727d4bff3deed6b34cfc05df17794f4a52eeb26cf8928f7c1a0fb85

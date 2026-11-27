@@ -11,8 +11,8 @@ def nlp():
     return load_nlp()
 
 
-def clean(text, nlp=None):
-    return sanitize(text, nlp=nlp).text
+def clean(text, nlp=None, protected=None):
+    return sanitize(text, nlp=nlp, protected=protected if protected is not None else set()).text
 
 
 # ---------- positives: each identifier type and several formats; the canary must not survive ----------
@@ -119,7 +119,8 @@ def test_ner_redacts_most_synthetic_names(nlp):
 
 
 def test_ner_locations_and_protected_brands(nlp):
-    out = clean("I live in Austin, Texas and sent money to Lagos but Zelle and Chase and Wells Fargo ignored me.", nlp)
+    # protected company names are supplied by the caller (Step 2 derives them from the export's public Company column)
+    out = clean("I live in Austin, Texas and sent money to Lagos but Zelle and Chase and Wells Fargo ignored me.", nlp, protected={"chase", "wells fargo"})
     assert "Austin" not in out and "Texas" not in out and "[LOCATION]" in out
     for brand in ["Zelle", "Chase", "Wells Fargo"]:
         assert brand in out
@@ -200,7 +201,9 @@ def test_known_limitations_are_actual_limitations():
     assert "dev patel" in clean("my cousin dev patel did the transfer")      # lowercase name without cue, no NER
     assert "3/14" in clean("it happened on 3/14 around noon")                # date without year
     assert "Elm Street" in clean("the branch on Elm Street refused")         # street name without a number
-    assert "1234" in clean("card XXXX 1234 was used")                        # indistinguishable from a year
+    assert "1234" in clean("I sent XXXX 1234 to them")                       # masked digits without card/account wording
+    assert "2031" in clean("my card 2031 was replaced")                      # year-like, no 'number' / 'ending' / '#'
+    assert "4821" in clean("the card I used, 4821, was lost")                 # wording not adjacent to the digits
 
 
 def test_edge_cases_unicode_does_not_crash(nlp):
@@ -215,3 +218,121 @@ def test_edge_cases_unicode_does_not_crash(nlp):
 def test_my_name_is_cue_handles_case_and_function_words(text, gone, kept):
     out = clean(text)
     assert gone not in out and kept in out and "[PERSON]" in out, out
+
+
+# ---------- D-27 fixes, tested with a deterministic stand-in for spaCy so the tests do not depend on what the model happens to tag ----------
+import re as _re
+import types
+
+
+class FakeEnt:
+    def __init__(self, text, label, start):
+        self.text, self.label_, self.start_char, self.end_char = text, label, start, start + len(text)
+
+
+class FakeNLP:
+    """Entities come from a fixed {surface: label} table. `staged`: only the k-th surface is 'visible' once k [PERSON] placeholders exist
+    (simulates a name that NER only sees after an earlier name was removed). `calls` counts NER passes."""
+    def __init__(self, table, staged=None):
+        self.table, self.staged, self.calls = table, staged, 0
+
+    def __call__(self, text):
+        self.calls += 1
+        items = list(self.table.items())
+        if self.staged:
+            k = text.count("[PERSON]")
+            items = [(self.staged[k], "PERSON")] if k < len(self.staged) else []
+        ents = [FakeEnt(surface, label, m.start()) for surface, label in items for m in _re.finditer(_re.escape(surface), text)]
+        return types.SimpleNamespace(ents=sorted(ents, key=lambda e: e.start_char))
+
+
+def test_loose_email_rule_removed():
+    out = clean("I looked at chase.com and then at paypal.com for help.")
+    assert "[EMAIL]" not in out                                   # these are websites, not addresses (the old rule produced [EMAIL])
+    assert "[EMAIL]" in clean("write to me at jane.doe@example.com")  # real addresses are still caught
+
+
+@pytest.mark.parametrize("brand", ["Zelle", "Venmo", "Cash App", "Citi", "Visa", "Mastercard"])
+def test_brand_allowlist_keeps_exact_brand_even_if_ner_tags_it(brand):
+    nlp = FakeNLP({brand: "PERSON"})
+    r = sanitize(f"My {brand} payment failed.", nlp=nlp)
+    assert brand in r.text and "[PERSON]" not in r.text and r.ner_skips.get("brand_allowlist") == 1
+
+
+def test_brand_allowlist_is_exact_not_broad():
+    for surface in ["Visa Patel", "Citi Nguyen", "Venmo Johnson", "Zelles"]:
+        out = sanitize(f"I spoke with {surface} yesterday.", nlp=FakeNLP({surface: "PERSON"})).text
+        assert surface not in out and "[PERSON]" in out, surface
+    assert "Zelle" in sanitize("Zelle's app froze.", nlp=FakeNLP({"Zelle's": "PERSON"})).text   # possessive of an exact brand is still the brand
+
+
+def test_critical_terms_never_redacted_by_ner():
+    nlp = FakeNLP({"Fraud Department": "PERSON", "Dana": "PERSON", "chargeback": "GPE", "Unauthorized Charges Team": "PERSON"})
+    r = sanitize("Dana from the Fraud Department said the chargeback and the Unauthorized Charges Team could not help.", nlp=nlp)
+    assert "Dana" not in r.text and "[PERSON]" in r.text
+    for kept in ["Fraud Department", "chargeback", "Unauthorized Charges Team"]:
+        assert kept in r.text
+    assert r.ner_skips["critical_term"] == 3
+
+
+def test_company_list_still_protects_names():
+    r = sanitize("Acme Savings closed my account.", nlp=FakeNLP({"Acme Savings": "GPE"}), protected={"acme savings"})
+    assert "Acme Savings" in r.text and r.ner_skips == {"company_list": 1}
+
+
+def test_ner_second_pass_catches_entity_exposed_by_first_pass_and_stops_when_stable():
+    nlp = FakeNLP({}, staged=["Dana", "Lee"])
+    r = sanitize("Dana Lee called me back.", nlp=nlp)
+    assert "Lee" not in r.text and "Dana" not in r.text and r.ner_passes == 2
+    quiet = FakeNLP({"Nobody": "PERSON"})
+    r2 = sanitize("Plain text with no entities.", nlp=quiet)
+    assert r2.ner_passes == 1 and quiet.calls == 1          # stable after one pass: no second pass
+
+
+def test_ner_passes_are_capped_at_two():
+    nlp = FakeNLP({}, staged=["Ann", "Bob", "Cy"])
+    r = sanitize("Ann Bob Cy", nlp=nlp)
+    assert r.ner_passes == 2 and nlp.calls == 2 and "Cy" in r.text and "Ann" not in r.text and "Bob" not in r.text
+
+
+def test_default_protected_list_is_empty():
+    from part_b.sanitizer import DEFAULT_PROTECTED
+    assert DEFAULT_PROTECTED == set()
+
+
+# --- 4 digits after card / account wording (known-gap fix before leak review batch 1) ---
+@pytest.mark.parametrize("text,digits", [
+    ("my card 4821 was lost", "4821"), ("Debit Card 0042 got charged", "0042"), ("account 7731 was closed", "7731"), ("acct #5512 is frozen", "5512"),
+    ("a/c no. 8812 shows nothing", "8812"), ("card number 4821 was used", "4821"), ("my account number is 3377.", "3377"), ("card: 6604, then nothing", "6604"),
+    ("card XXXX 1234 was used", "1234"), ("account xxxx-9090 was drained", "9090"), ("card **** 4455 was used", "4455"),
+    ("card ending 2024 was lost", "2024"), ("account number 1999 is mine", "1999"), ("card # 2050 expired", "2050"),
+    ("I used my card 4821 3 days ago", "4821"), ("account 7731 2 weeks later", "7731"), ("card 4821 500 dollars were taken", "4821"),
+    ("card number ending 4821 was used", "4821"), ("account no. ending 4821", "4821"), ("my card (4821) was lost", "4821"), ("card: #4821", "4821"),
+    ("account, 4821", "4821"), ("my Visa ending 4821 was charged", "4821"), ("Mastercard ending 4821", "4821"),
+])
+def test_card_and_account_fragments_removed(text, digits):
+    out = clean(text)
+    assert digits not in out and "[LAST4]" in out
+
+
+@pytest.mark.parametrize("text,kept", [
+    ("I opened the account 2019 and it was fine", "2019"), ("my card XXXX 2023 statement", "2023"), ("since XXXX 2024 nothing changed", "2024"),
+    ("they took from my account $4821 today", "4821"), ("charged to my card 1500 dollars", "1500"), ("debited from account 2500.00 yesterday", "2500.00"),
+    ("my card $1,200 limit", "1,200"), ("a gift card 5000 points bonus", "5000"), ("the account 1500 limit was cut", "1500"), ("in 2024 my card was stolen", "2024"),
+    ("I paid 4821 for it", "4821"), ("the card was charged 3000 twice", "3000"),
+    ("the account 1234.5 units", "1234.5"), ("the card, 2023 edition", "2023"), ("for the year ending 2024", "2024"),
+])
+def test_amounts_and_years_are_kept(text, kept):
+    out = clean(text)
+    assert kept in out and "[LAST4]" not in out
+
+
+@pytest.mark.parametrize("text", ["my card 4111 1111 1111 1111 was used", "account number 123456789012", "card 4111-1111-1111-1111 gone"])
+def test_long_card_numbers_are_not_split_by_the_four_digit_rule(text):
+    out = clean(text)
+    assert not any(ch.isdigit() for ch in out) and "[LAST4]" not in out
+
+
+def test_card_fragment_rule_is_idempotent():
+    once = clean("card XXXX 1234 and account 7731")
+    assert clean(once) == once

@@ -1,0 +1,17 @@
+{
+  "batch": 1,
+  "batch_outcomes": [
+    "failed"
+  ],
+  "date": "2026-11-27",
+  "decision": "not_signed_off",
+  "fingerprint": {
+    "model": "core_web_sm-3.8.0",
+    "part_b/eligibility.py": "92adbe013d1457c60a43b3d447e74c32391cfe22b6e427fe325e1001fd545d59",
+    "part_b/run_sanitizer_aggregate.py": "a286bb37b2d32faa1e05b7dcec22a13636052236b44b126b318beb01313375f2",
+    "part_b/sanitizer.py": "e47ecfcc3c73cdd89b3a030bd8f15f604c19ce4ed74fe356fcd9ee11b583615b",
+    "part_b/sensitive_flags.py": "f9b75c8e39c0c38b9d1656ae1fe5833f1c56bf8a208023548a26857d7a5ed92e",
+    "protected_terms": "887add201c6ed408a8cb03b340ef7a7bd64ac5a5635b8e63c8d92ab971c582e7",
+    "spacy": "3.8.18"
+  }
+}

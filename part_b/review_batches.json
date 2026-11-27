@@ -1,0 +1,33 @@
+{
+  "batches": [
+    {
+      "batch": 1,
+      "counts": {
+        "direct_leak": {
+          "n": 30,
+          "u": 0,
+          "y": 0
+        },
+        "direct_types": {},
+        "indirect_concern": {
+          "n": 28,
+          "u": 0,
+          "y": 2
+        },
+        "items_failing": 30,
+        "visible_sensitive": {
+          "n": 0,
+          "u": 0,
+          "y": 30
+        },
+        "visible_sensitive_category": {
+          "financial_account_details": 30
+        }
+      },
+      "date": "2026-11-26",
+      "seed": "42-review-batch-01",
+      "size": 30,
+      "status": "failed"
+    }
+  ]
+}

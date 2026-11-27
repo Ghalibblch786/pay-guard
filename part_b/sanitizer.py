@@ -8,8 +8,8 @@ company names are deliberately kept. Fail closed: anything unexpected raises San
 caller must then keep the narrative local (see SPECS D-19, D-23).
 
 KNOWN LIMITATIONS (found by synthetic probing; not fixable with simple rules): lowercase names without a cue ("my cousin dev patel"),
-street names without a house number, dates without a year ("3/14"), "XXXX 1234" (the 4 digits are kept: indistinguishable from a year),
-4-digit account fragments after "card"/"account", names the small NER model misses (informal / lowercase text), employers and indirect
+street names without a house number, dates without a year ("3/14"), "XXXX 1234" without card/account wording (kept),
+4-digit card/account fragments separated from that wording by other words, or year-like (1900-2099) without "number"/"ending"/"#", names the small NER model misses (informal / lowercase text), employers and indirect
 identifiers, and over-redaction: long digit runs that are really amounts without a currency symbol or word become [NUMBER_ID].
 """
 import re
@@ -19,11 +19,15 @@ from dataclasses import dataclass, field
 MAX_CHARS = 100_000
 PLACEHOLDERS = ["[EMAIL]", "[PHONE]", "[URL]", "[ZIP]", "[NUMBER_ID]", "[LAST4]", "[DATE]", "[ADDRESS]", "[PERSON]", "[EMPLOYER]", "[LOCATION]", "[REDACTED]"]
 
-# Public brands/banks that NER often mistakes for people or places. Step 2 extends this from the export's public 'Company' column.
-DEFAULT_PROTECTED = {"zelle", "paypal", "venmo", "cash app", "cashapp", "chase", "wells fargo", "bank of america", "capital one", "citi", "citibank",
-                     "discover", "american express", "amex", "visa", "mastercard", "apple", "apple pay", "google pay", "western union", "moneygram",
-                     "coinbase", "robinhood", "navy federal", "truist", "pnc", "td bank", "us bank", "u.s. bank", "usaa", "ally", "chime", "sofi",
-                     "walmart", "amazon", "ebay", "paysafe", "remitly", "wise", "samsung pay", "klarna", "affirm"}
+# Company names to protect from NER come ONLY from the caller (Step 2 builds them from the export's public 'Company' column); none are hard-coded.
+DEFAULT_PROTECTED: set = set()
+# Exact, curated payment-brand allowlist (SPECS D-27). An NER span is skipped only if its whole text equals one of these (case-insensitive,
+# optional possessive). Nothing broader is protected: "Visa Patel" or "Citi Nguyen" are still redacted as people.
+PAYMENT_BRANDS_EXACT = {"zelle", "venmo", "cash app", "citi", "visa", "mastercard"}
+# Fraud / payment-dispute vocabulary that carries routing and urgency signal: an NER span that contains one of these words is never redacted.
+CRITICAL_TERMS = {"fraud", "fraudulent", "fraudster", "scam", "scammer", "scammers", "scammed", "chargeback", "chargebacks", "unauthorized", "unauthorised",
+                  "stolen", "phishing", "hacked", "dispute", "disputed", "refund", "theft"}
+MAX_NER_PASSES = 2
 
 STATES = ("AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY DC PR").split()
 MONTH = r"(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)"
@@ -39,6 +43,8 @@ class SanitizeResult:
     text: str
     counts: dict = field(default_factory=dict)   # placeholder -> number of replacements (no text content)
     ner_used: bool = False
+    ner_passes: int = 0                           # NER passes actually run (stops early once the text is stable)
+    ner_skips: dict = field(default_factory=dict) # why NER spans were NOT redacted: brand_allowlist / critical_term / company_list
 
 
 def load_nlp():
@@ -95,10 +101,13 @@ _HONORIFIC = R(r"\b(?:Mr|Mrs|Ms|Miss|Mx|Dr)\.?\s+" + NAME)
 _CLOSING = R(r"(?i:\b(?:sincerely|regards|best\s+regards|kind\s+regards|respectfully|thanks|thank\s+you|yours\s+truly)\b)[,.!]?\s*\n?\s*(" + NAME + r")(?=[ \t]*(?:\n|$))")
 _EMPLOYER = R(r"(?i:\b(?:i\s+work\s+(?:at|for)|i\s+am\s+employed\s+(?:at|by)|my\s+employer\s+is|employed\s+(?:at|by))\s+)([A-Z][\w&'.-]*(?:\s+(?:of\s+|and\s+|&\s+)?[A-Z][\w&'.-]*){0,3})")
 _EMAIL_OBF2 = R(r"\b[\w.+-]+\s*(?:\(at\)|\[at\]|\{at\})\s*[\w-]+(?:\.[\w-]+)*\.[A-Za-z]{2,}\b", re.I)
-_EMAIL_AT_TLD = R(r"\b[\w.+-]+\s+at\s+[\w-]+(?:\.[\w-]+)*\.(?:com|net|org|edu|gov|io|co|us|info|biz)\b", re.I)
 _ALNUM_ID = R(r"(?<![\w$])(?=[A-Za-z]*\d)(?=\d*[A-Za-z])[A-Za-z0-9]{10,}(?![\w])")  # IBAN, wallet address, tracking / reference codes
 _CUE_NUM = R(r"(?i)\b((?:account|acct|a/c|routing|reference|ref|confirmation|invoice|tracking|transaction|case|claim|order)\s*(?:number|no\.?|num|id|#)?\s*[:#]?\s*)(\d{5,})\b")
 _CLOSING_LOWER = R(r"(?i:\b(?:sincerely|regards|best\s+regards|kind\s+regards|respectfully|yours\s+truly)\b)[,.!]?\s*\n?\s*([A-Za-z][A-Za-z'’-]+(?:\s+[A-Za-z]\.)?(?:\s+[A-Za-z][A-Za-z'’-]+)?)(?=[ \t]*(?:\n|$))")
+# 4 digits directly after card/account wording (the "known gap" fix). Run AFTER the long-number rules so a full card number is never split.
+_CARD_CUE = r"\b(?:card|account|acct|a/c|(?:visa|mastercard|amex)(?=\s+ending))(?P<marker>(?:\s*(?:ending|number|num\b|no\b\.?|#))+)?(?:\s+is\b)?[\s:#,(]*"
+_CARD4 = R(r"(?i)(?P<head>" + _CARD_CUE + r"(?P<mask>(?:x{4}|\*{4})[ -]?)?)(?P<digits>\d{4})(?![\w%])(?!-\d)(?![.,/]\d)"
+           r"(?!\s*(?:points?|miles|times|days|hours|limit|rewards?|bonus)\b)")
 _XTOKEN = R(r"\b[Xx]{2,}\b")
 _NUMRUN = R(r"(?<![\w$.,/-])\d(?:[ -]?\d){5,}(?![\w%])")
 
@@ -106,6 +115,42 @@ _NUMRUN = R(r"(?<![\w$.,/-])\d(?:[ -]?\d){5,}(?![\w%])")
 def _protected(s, protected):
     t = s.lower().strip(" .")
     return t in protected or any(p in t for p in protected if len(p) > 3)
+
+
+def _entity_key(text):
+    t = text.strip().lower()
+    return t[:-2] if t.endswith(("'s", "’s")) else t
+
+
+def _has_critical_term(low):
+    return any(re.search(r"\b" + re.escape(term) + r"\b", low) for term in CRITICAL_TERMS)
+
+
+def _ner_pass(t, nlp, protected, counts, skips, count_skips=True):
+    """One NER pass: replace PERSON with [PERSON] and GPE/LOC with [LOCATION], except spans that touch a placeholder, are an exact payment
+    brand, contain a critical fraud/dispute term, or match the protected company list. Skip statistics are only recorded on the first pass
+    (later passes re-see the same skipped spans, which would double count)."""
+    spans = []
+    for e in nlp(t).ents:
+        if e.label_ not in ("PERSON", "GPE", "LOC") or "[" in e.text or "]" in e.text:
+            continue
+        low = _entity_key(e.text)
+        if low in PAYMENT_BRANDS_EXACT:
+            if count_skips:
+                skips["brand_allowlist"] = skips.get("brand_allowlist", 0) + 1
+        elif _has_critical_term(low):
+            if count_skips:
+                skips["critical_term"] = skips.get("critical_term", 0) + 1
+        elif _protected(e.text, protected):
+            if count_skips:
+                skips["company_list"] = skips.get("company_list", 0) + 1
+        else:
+            spans.append(e)
+    for e in sorted(spans, key=lambda e: -e.start_char):
+        ph = "[PERSON]" if e.label_ == "PERSON" else "[LOCATION]"
+        t = t[:e.start_char] + ph + t[e.end_char:]
+        counts[ph] = counts.get(ph, 0) + 1
+    return t
 
 
 def sanitize(text: str, nlp=None, protected=DEFAULT_PROTECTED) -> SanitizeResult:
@@ -121,7 +166,6 @@ def sanitize(text: str, nlp=None, protected=DEFAULT_PROTECTED) -> SanitizeResult
     t = _sub(_EMAIL, "[EMAIL]", t, counts, "[EMAIL]")
     t = _sub(_EMAIL_OBF, "[EMAIL]", t, counts, "[EMAIL]")
     t = _sub(_EMAIL_OBF2, "[EMAIL]", t, counts, "[EMAIL]")
-    t = _sub(_EMAIL_AT_TLD, "[EMAIL]", t, counts, "[EMAIL]")
     t = _sub(_URL, "[URL]", t, counts, "[URL]")
     t = _sub(_URL_BARE, "[URL]", t, counts, "[URL]")
     # 2 dates (numeric incl. CFPB-masked, ISO, textual day+month); month-year alone is kept
@@ -152,6 +196,15 @@ def sanitize(text: str, nlp=None, protected=DEFAULT_PROTECTED) -> SanitizeResult
         return m.group(1) + "[NUMBER_ID]"
     t = _CUE_NUM.sub(cue_num, t)
     t = _sub(_ALNUM_ID, "[NUMBER_ID]", t, counts, "[NUMBER_ID]")
+    def card4(m):
+        """Keep amounts, and keep year-like values ("my card 2023 statement") unless 'number', 'ending' or '#' says it is a card/account number."""
+        if _is_amount_context(m.string, m.start("digits"), m.end("digits")):
+            return m.group(0)
+        if 1900 <= int(m.group("digits")) <= 2099 and not m.group("marker"):
+            return m.group(0)
+        counts["[LAST4]"] = counts.get("[LAST4]", 0) + 1
+        return m.group("head") + "[LAST4]"
+    t = _CARD4.sub(card4, t)
     # 6 ZIP with context, addresses
     t = _sub(_ZIP_CTX, lambda m: m.group(1) + "[ZIP]", t, counts, "[ZIP]")
     t = _sub(_ZIP_STATE, lambda m: m.group(1) + " [ZIP]", t, counts, "[ZIP]")
@@ -171,20 +224,20 @@ def sanitize(text: str, nlp=None, protected=DEFAULT_PROTECTED) -> SanitizeResult
     t = _sub(_EMPLOYER, lambda m: m.group(0).replace(m.group(1), "[EMPLOYER]"), t, counts, "[EMPLOYER]")
     # 8 CFPB redaction tokens
     t = _sub(_XTOKEN, "[REDACTED]", t, counts, "[REDACTED]")
-    # 9 local NER (people, places). Spans touching placeholders or protected brands are skipped.
-    ner_used = False
+    # 9 local NER (people, places): up to MAX_NER_PASSES, stopping as soon as a pass changes nothing (removing a name can expose another)
+    ner_used, ner_passes, skips = False, 0, {}
     if nlp is not None:
         ner_used = True
-        doc = nlp(t)
-        spans = [e for e in doc.ents if e.label_ in ("PERSON", "GPE", "LOC") and "[" not in e.text and "]" not in e.text and not _protected(e.text, protected)]
-        for e in sorted(spans, key=lambda e: -e.start_char):
-            ph = "[PERSON]" if e.label_ == "PERSON" else "[LOCATION]"
-            t = t[:e.start_char] + ph + t[e.end_char:]
-            counts[ph] = counts.get(ph, 0) + 1
+        for pass_no in range(MAX_NER_PASSES):
+            new_t = _ner_pass(t, nlp, protected, counts, skips, count_skips=(pass_no == 0))
+            ner_passes += 1
+            if new_t == t:
+                break
+            t = new_t
     # 10 tidy: merge repeated placeholders, whitespace
     t = re.sub(r"(\[(?:PERSON|LOCATION|REDACTED|ADDRESS)\])(?:[ ,]*\1)+", r"\1", t)
     t = re.sub(r"[ ]{2,}", " ", t).strip()
-    return SanitizeResult(text=t, counts=counts, ner_used=ner_used)
+    return SanitizeResult(text=t, counts=counts, ner_used=ner_used, ner_passes=ner_passes, ner_skips=skips)
 
 
 def try_sanitize(text, nlp=None, protected=DEFAULT_PROTECTED):

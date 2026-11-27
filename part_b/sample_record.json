@@ -1,0 +1,39 @@
+{
+  "archive_sha256": "3021c8af9eeed4971a92f15be21c7ce08cf3c1337151de255e5b12bf782049df",
+  "date": "2026-11-27",
+  "eligible": 7376,
+  "excluded_reviewed": 50,
+  "fingerprint": {
+    "model": "core_web_sm-3.8.0",
+    "part_b/eligibility.py": "92adbe013d1457c60a43b3d447e74c32391cfe22b6e427fe325e1001fd545d59",
+    "part_b/run_sanitizer_aggregate.py": "a286bb37b2d32faa1e05b7dcec22a13636052236b44b126b318beb01313375f2",
+    "part_b/sanitizer.py": "e47ecfcc3c73cdd89b3a030bd8f15f604c19ce4ed74fe356fcd9ee11b583615b",
+    "part_b/sensitive_flags.py": "f9b75c8e39c0c38b9d1656ae1fe5833f1c56bf8a208023548a26857d7a5ed92e",
+    "protected_terms": "887add201c6ed408a8cb03b340ef7a7bd64ac5a5635b8e63c8d92ab971c582e7",
+    "spacy": "3.8.18"
+  },
+  "label_by_product": {
+    "Checking or savings account": 26,
+    "Credit card": 22,
+    "Money transfer, virtual currency, or money service": 10,
+    "Prepaid card": 2
+  },
+  "main_by_product": {
+    "Checking or savings account": 171,
+    "Credit card": 148,
+    "Money transfer, virtual currency, or money service": 70,
+    "Prepaid card": 11
+  },
+  "main_flagged_total": 67,
+  "manifest_sha256": "c6e27ceafbdb53cc1d5b4b57b0de28683ed5c8a6efa6f3fd49a9d669d8216255",
+  "pilot_by_product": {
+    "Checking or savings account": 5,
+    "Credit card": 5,
+    "Money transfer, virtual currency, or money service": 5,
+    "Prepaid card": 5
+  },
+  "pilot_flagged_draws_replaced": 3,
+  "reserve_n": 20,
+  "sanitizer_decision": "not_signed_off",
+  "seed": 42
+}
