@@ -8,7 +8,7 @@ Maintained continuously by Claude Code and reviewed by the author before submiss
 |---|---|---|
 | Claude Code (CLI/VS Code extension) | Claude Sonnet 5.5 (`claude-sonnet-5-5`) | Reading the assignment brief, planning, drafting project docs, and (as work proceeds) code, tests, and write-ups |
 
-Claude Code also used web search and a web-fetch subagent (to read LLM providers' terms; no project data sent). Not a coding assistant, but part of the product: the local model `llama3.2:3b` (via Ollama) produces the Part B triage outputs. The author is to add any other AI assistant they used.
+Claude Code also used web search and a web-fetch subagent (to read LLM providers' terms; no project data sent). Not a coding assistant, but part of the product: the local model `llama3.2:3b` (via Ollama) produces the Part B triage outputs. The author confirmed on 2026-11-27 that they used no other AI tool.
 
 ## How the work was actually done
 - Through M2 and most of M3, work went in proposal-and-approval steps. On 2026-11-27 the author moved to a faster strategy (SPECS D-32): AI took routine implementation decisions, including model, prompt-selection rule, reduced evaluation plan and the memo's recommendation.
@@ -28,8 +28,8 @@ and can explain it.
 | AI_USAGE.md | ~90% | Reviews entries for accuracy | ☐ |
 | Part A code (`part_a/*.py`, `tests/`) | ~95% AI-written; author specified design constraints, reviewed results | Specified split, leakage, duplicate, calibration and rule requirements; made all decisions | ☐ |
 | Part B code (`part_b/`, Part B tests; includes the D-29 exclusion code) | ~95% AI-written; author set safeguards and requirements | Set data-protection rules, approved designs and fixes, ran the flag-audit summary and recorded all 29 audit verdicts | ☐ |
-| README.md | ~95% AI-drafted, including first-person text about the author's flag audit | Requested content and limits; wording to be confirmed | ☐ |
-| memo.md | ~100% AI-drafted, including the recommendation | Set scope and constraints; hand labels behind its Part B results; wording and recommendation to be confirmed | ☐ |
+| README.md | ~95% AI-drafted, including first-person text about the author's flag audit | Requested content and limits; confirmed the first-person "I reviewed" statements as accurate (2026-11-27) | ☐ |
+| memo.md | ~100% AI-drafted, including the recommendation | Set scope and constraints; hand labels behind its Part B results; agreed with the recommendation (2026-11-27) | ☐ |
 
 **Overall (rough judgment, not measured from line history):** about 95% of the code and tests, and about 90% or more of the documentation text, was first drafted by AI. The author's direct contributions are requirements, safeguards, decisions, review verdicts and hand labels.
 
@@ -201,6 +201,12 @@ AI errors this session: reported run speed from progress lines without checking 
 Final checks by AI: 403 tests, freeze verification, rescoring, one live synthetic record, and a local counts-only scan of commit-visible files for record hashes, Complaint IDs and 8-word narrative overlaps (the script read narratives and IDs in memory; AI saw only counts, file names, line numbers and its own synthetic lines). No prompt or rule changed after scoring; Part A and SCOPE unchanged; no commit. The author has not yet reviewed these changes.
 
 **Update (2026-11-27, review against the assignment page):** at the author's request, AI read the assignment wiki page through a web-fetch subagent (only the link was sent) and compared the repository with it using read-only checks, including counts (no text shown) of how varied the 400-run summaries and confidence notes are. Found: no `creditcard.csv` download or Part A run instructions, no recommended operating threshold, current work not pushed. AI had earlier marked A2, A5 and D2 done; corrected in SPECS. No code, README or memo change.
+
+**Update (2026-11-27, three approved README and memo fixes):** the author approved AI's three fixes and suggested operating point. AI wrote the Part A download and run instructions (from reading the scripts; not re-run), the operating-point and error-cost text (marked as chosen after test results), the README results summary and key-file list, and one memo sentence explaining the choice of Part B (reason taken from SPECS D-01). The author approved the threshold; the analysis and wording are AI's. Checks: data file hash, 2-page memo render, links, 403 tests. No Part A code or results changed or rerun.
+
+**Update (2026-11-27, confirmations and commit):** the author confirmed that the README's first-person review statements are accurate, agreed with the memo's recommendation, stated that no other AI tool was used, and approved AI committing, pushing to GitHub and testing a fresh clone, including the Part A validation-only check in that temporary copy. These confirmations do not mean the author has reviewed all the code.
+
+**Note on commit `5a9ee57` (2026-11-27 21:46):** this earlier commit of the Part B work and memo, already on GitHub, carries the author's Git identity and a Claude co-author line. It was not made by AI in the conversation that wrote this note. Statements in earlier entries that nothing was committed refer to the time they were written; AI did not re-check the Git log before saying so after the three fixes. The commit that adds this note contains the three fixes and the confirmations.
 
 <!-- Claude: append new session entries below this line, newest last. Keep entries specific. -->
 

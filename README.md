@@ -3,6 +3,27 @@
 Fraud-detection prototype (Part A), LLM complaint-triage prototype (Part B), production memo (Part C, `memo.md`).
 Parts A and C are complete. Part B runs end to end, but **its evaluation shows it is not fit for use**: it sends every complaint to a human, and its category accuracy (10/26) only ties a majority-class guess (see [results](#evaluation-on-hand-labels)).
 
+## Results at a glance
+| | Result | Main caveat |
+|---|---|---|
+| **Part A: fraud** | Test PR-AUC: XGBoost 0.757, logistic regression 0.700 | Difference not established (95% CI -0.031 to +0.152); only 52 test frauds |
+| **Part A: operating point** | Start a trial with logistic regression, Rule B, review cost EUR 5: [39 of 52 frauds, 20 false alarms](#recommended-operating-point) | Chosen **after** seeing test results; costs are hypothetical |
+| **Part B: triage** | Pipeline runs end to end on a local model, but is **not fit for use** | Sent 30/30 labeled and 400/400 sampled records to a human; category 10/26, tying a majority guess; one labeler |
+| **Part B: safety** | Prompt-injection defence is incomplete | 6 of 9 attack and safety cases passed; one injected complaint avoided escalation |
+| **Part C: [memo.md](memo.md)** | Fund offline evaluation only | Capacity prices and review minutes are assumptions |
+
+More: [Part A](#part-a-fraud-detection) · [Part B evaluation](#evaluation-on-hand-labels) · [what I cut](#what-i-cut-and-why) · [AI_USAGE.md](AI_USAGE.md)
+
+### Where to look in the code
+| Start here | What it shows |
+|---|---|
+| [part_a/data.py](part_a/data.py), [part_a/stage2a.py](part_a/stage2a.py), [part_a/final_test.py](part_a/final_test.py) | time split; models, calibration and cost rules; the single test evaluation |
+| [part_b/triage.py](part_b/triage.py) | output schema, retries, fallback, per-complaint flow |
+| [part_b/safety_rules.py](part_b/safety_rules.py), [part_b/prompts.py](part_b/prompts.py) | escalation rules and prompt versions |
+| [part_b/evaluate_triage.py](part_b/evaluate_triage.py) | how "correct" is scored |
+
+The other `part_b/` scripts support data inspection, redaction and its review, sampling, freezing the plan and hand labeling. They are kept so those steps can be checked.
+
 ## Setup
 Tested on **macOS (Apple Silicon) with Python 3.12 only**. Linux/Windows untested.
 
@@ -33,7 +54,7 @@ Run scripts from the repo root, e.g. `python -m part_a.train`.
 
 ## Part A: fraud detection
 
-**Status:** complete (M1-M2). The test set was evaluated **once**, using a frozen configuration (hash below). Nothing
+**Status:** complete. The test set was evaluated **once**, using a frozen configuration (hash below). Nothing
 was tuned, recalibrated or changed after seeing test results. All figures come from `outputs/` and `part_a/frozen/`.
 
 ### Summary
@@ -43,6 +64,26 @@ was tuned, recalibrated or changed after seeing test results. All figures come f
   Differences among the four model/rule combinations at the base case are well inside the noise.
 - Those are **hypothetical modelled savings under stated assumptions, not business savings** (see "Cost model").
 - Rule B's apparent validation advantage over Rule A **did not generalize** to the test set.
+
+### Get the data and run it
+1. Download `creditcard.csv` from Kaggle, [Credit Card Fraud Detection (ULB)](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud) (needs a Kaggle account; unzip if needed).
+2. Save it as `data/raw/creditcard.csv` (the folder is gitignored; create it if missing).
+3. Check it is the same file: `shasum -a 256 data/raw/creditcard.csv` must give
+   `76274b691b16a6c49d3f159c883398e03ccd6d1ee12d9d8ee38f4b4b98551a89`.
+
+With the file in place, `python -m pytest -q` also runs the split-leakage tests (they are skipped without it).
+
+**These scripts write over committed results. Run them only in a throwaway copy of the repository**, from its root, with the environment active:
+
+| Command | What it does | Writes over |
+|---|---|---|
+| `python -m part_a.final_test --split val` | Safest check: verifies the frozen hashes, then scores the frozen models on **validation** | `outputs/m2_dryrun_val.json` only |
+| `python -m part_a.train` | Baseline, fit on train, scored on validation | `outputs/m1_baseline_metrics.json`, `outputs/m1_baseline_pr_curve.png` |
+| `python -m part_a.stage2a` | Fits both models and calibrators, validation results, freezes the configuration | `outputs/m2_stage2a_results.json` **and the frozen models, config and its hash in `part_a/frozen/`** |
+| `python -m part_a.diag_amount_bands` | Validation calibration by Amount band; uses the frozen models | `outputs/m2_validation_amount_band_calibration.json` |
+| `python -m part_a.final_test --split test` | The single test evaluation | Nothing: it **refuses to run** while `outputs/m2_test_results.json` exists |
+
+The reported test figures are the saved ones in `outputs/m2_test_results.json`. The config also records hashes of `data.py`, `evaluate.py`, `train.py` and `stage2a.py`, so editing them makes `final_test` stop.
 
 ### Data, split and duplicates
 ULB `creditcard.csv` (284,807 rows, 492 frauds, SHA-256 `76274b69...8a89`).
@@ -108,7 +149,7 @@ sensitivity values 1 and 25. They are not PayGuard operating costs.
   found to over-predict).
 
 **Two rules, with different roles** (both frozen before the test evaluation, both evaluated once):
-- **Rule A, flag if `p x Amount > c`:** the original rule, specified in the approved M2 proposal before any Stage 2a result
+- **Rule A, flag if `p x Amount > c`:** the original rule, specified in the plan before any XGBoost or decision-cost result
   existed; the primary comparator. It is the principled rule *if* its assumptions hold.
 - **Rule B, flag if `p > c / 120.29`** (EUR 120.29 = mean fraud Amount in train; thresholds 0.0083 / 0.0416 / 0.2078 for
   c = 1 / 5 / 25): a **validation-informed, secondary operating-policy alternative** and an **average-loss approximation, not a
@@ -158,6 +199,32 @@ both models reach the same recall (0.750), but XGBoost flags 105 transactions to
 pays for more false alerts. XGBoost's probabilities also over-predict (ratio 1.34), which is consistent with a probability-based
 threshold admitting more false alerts, though this was not isolated. Finally, the cost is dominated by a few high-value missed
 frauds, which PR-AUC does not weight. Hence a better ranking metric and a lower operating cost can disagree.
+
+### Recommended operating point
+**Starting point for a trial: logistic regression with Rule B at a review cost of EUR 5**, which flags a transaction when its calibrated probability is above **0.0416**.
+A flag should trigger review or step-up verification, **not an automatic block**.
+
+> **This choice was made after seeing the test results.** It is a judgment about where to start, not an independent test of that choice, and the test figures
+> below are likely optimistic for it. It was not part of the frozen plan. It must be confirmed on new data before use.
+
+| Logistic regression at c = EUR 5 (test: 42,561 transactions, 52 frauds) | Flagged | Frauds caught | False alarms | Missed frauds | Missed fraud value | Modelled total cost |
+|---|---|---|---|---|---|---|
+| **Rule B (suggested)** | 59 | 39 | 20 | 13 | EUR 2,372 | EUR 2,667 |
+| Rule A | 49 | 17 | 32 | 35 | EUR 2,404 | EUR 2,649 |
+
+- **Why Rule B:** for 10 more reviews it caught 22 more frauds with 12 fewer false alarms. It also had the lower cost on validation (EUR 729 vs 938), although that gap did not carry over to test.
+- **What it does not buy:** modelled money is essentially the same. The extra frauds caught were mostly small: missed value fell by only EUR 32, and total cost is EUR 18 *higher* (far inside the noise). The case for Rule B is catching more fraud cases and bothering fewer honest customers, **not** saving more money under this model.
+- **Why logistic regression:** XGBoost was not shown to rank better, and under Rule B it caught the same 39 frauds with 66 false alarms instead of 20. The logistic model is also simpler to explain.
+- **It depends on the review cost.** Rule B was better at c = 1 (EUR 2,447 vs 2,621) but **much worse at c = 25** (EUR 3,709 vs 3,038). If a review is expensive, or large losses matter most, use Rule A, which weighs each transaction's Amount: Rule B can let through a large fraud with a low probability.
+
+**What each error costs PayGuard**
+
+| Error | In the cost model | Not in the model, but real |
+|---|---|---|
+| **False alarm** (honest payment flagged) | One review, c (EUR 1, 5 or 25, hypothetical) | A delayed or declined payment, an extra verification step, support contacts, lost trust and possible churn. This can matter most for customers who need a payment to go through immediately |
+| **Missed fraud** | The transaction Amount | Chargeback or reimbursement handling, investigation, regulatory and reputational harm, and repeat abuse of the same account |
+
+A true alert also costs a review. Because customer harm from false alarms and the extra costs of missed fraud are both left out, the model cannot say which way the threshold should move once they are included. PayGuard would need its own figures for both, plus review capacity. In this roughly six-hour test window the suggested rule flags 59 transactions (0.14%); PayGuard's volume and fraud rate will differ.
 
 ### Real-time inference (A6)
 This describes how the prototype *would* be used for per-transaction scoring. **No production payment integration, serving

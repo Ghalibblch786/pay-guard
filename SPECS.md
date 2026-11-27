@@ -4,7 +4,7 @@
 > and the **Milestones** checkboxes current as work progresses. It must never contradict
 > `SCOPE.md` (frozen). If it would, stop and ask the user.
 
-Last updated: 2026-11-27 · Current milestone: **M8: review against the assignment page found README gaps (A2, A5, D2); fixes, commit, push, fresh-clone test and rehearsal outstanding**
+Last updated: 2026-11-27 · Current milestone: **M8: README gaps fixed; commit, push, fresh-clone test, author confirmations and rehearsal outstanding**
 
 ---
 
@@ -24,7 +24,7 @@ Status: ☐ todo · ◐ in progress · ☑ done
 | A2 | Justified metrics | README states why PR-AUC leads, why accuracy is not used; recall @ fixed precision reported | ◐ metric choice justified; recall at fixed precision is not reported in README (earlier ☑ was wrong) |
 | A3 | Baseline model | Logistic regression (class-weighted), metrics reported | ☑ (val) |
 | A4 | Stronger model | XGBoost, same split/metrics, compared to A3 with variance estimate | ☑ (test: XGB 0.757 vs LR 0.700, paired diff +0.046, CI [-0.031, +0.152]: not significant) |
-| A5 | Threshold + cost discussion | Explicit cost model with stated assumptions; threshold chosen from it; FP vs FN trade-off table/plot | ◐ cost model and two rules reported; README does not recommend an operating threshold; FP customer cost barely discussed (earlier ☑ was wrong) |
+| A5 | Threshold + cost discussion | Explicit cost model with stated assumptions; threshold chosen from it; FP vs FN trade-off table/plot | ☑ README: operating point (D-35, chosen after test results, labeled so) and both error costs; no plot, tables only |
 | A6 | Real-time inference note | ≤ 1 page: latency, history-dependent features, label delay, drift, PCA-anonymized feature limitation | ☑ (README; explicitly not a production implementation) |
 | A7 | Honest limits | Only 492 frauds → noisy metrics; dataset is 2 days, anonymized; stated in README | ☑ (README) |
 
@@ -58,7 +58,7 @@ Status: ☐ todo · ◐ in progress · ☑ done
 | ID | Requirement | Status |
 |---|---|---|
 | D1 | Runs from clean env (fresh venv + fresh clone tested) | ◐ clean file copy + fresh venv passed; fresh `git clone` needs a commit |
-| D2 | README: setup, approach, results, what was cut and why | ◐ no `creditcard.csv` download instructions or Part A run commands in README (earlier ☑ was wrong) |
+| D2 | README: setup, approach, results, what was cut and why | ☑ Part A download and run instructions added (derived from the code; commands not re-run); results summary and key files first |
 | D3 | `memo.md` | ☑ |
 | D4 | `AI_USAGE.md` accurate and specific | ◐ current; author to confirm accuracy |
 | D5 | Live-session rehearsal (walkthrough + 3 modifications) | ☐ |
@@ -274,7 +274,8 @@ All §2 rows ☑, D1 verified from a clean clone, README/memo/AI_USAGE complete 
 | D-31 | **M3 completion plan APPROVED (user, 2026-11-26), with review guide and Step 3 tooling accepted:** Run A (card/account 4-digit rule, Step 2 re-run, remaining tools, drafts, batch 1), stop for review, Run B (decision, pilot, main sample), stop for pilot check, Run C (freeze, label pack, closure). Changes to earlier plan: AI does NOT read any real narrative, including the pilot (supersedes plan step 6); M3 may close without sanitizer sign-off (sign-off only gates external sending); the sign-off decision is final before sampling and no review batch may follow it; `contains_sensitive` renamed `visible_sensitive` and compared with flags as a 2x2 table, NOT flagger recall (supersedes that part of D-26 and the earlier eval plan). Taxonomy file is JSON, not YAML (no extra dependency) | **Approved; Run A done** | One person is reviewer, labeler and co-author of the taxonomy |
 | D-32 | **Revised execution strategy (user, 2026-11-27):** finish within 2-3 hours; stop the sanitizer review (no new batch, no further fixes proposed); keep real complaint text local; AI takes ordinary implementation decisions and asks only when essential. Batch 1 recorded exactly as the author's sheet stood (FAILED); sign-off decision `not_signed_off`. To limit author effort, dropped: pilot check/labels, relabeling, extension, visible-sensitive field; label target reduced to the first >=30 of the frozen order with 3 fields (pending the author's explicit acceptance: SCOPE requires hand labels). D-02 (Gemini) SUPERSEDED: local Ollama `llama3.2:3b` (Llama community licence). D-23 kept: flagged records get no model call. Prompt versions compared on synthetic cases only | **Applied** | Taxonomy never checked on real data; one labeler; small n; small model chosen for an 8 GB laptop |
 | D-33 | **Provider (user, 2026-11-27): stay local.** The author considered free Gemini and Groq. AI checked the terms that day (Gemini unpaid: content used to improve products, possible human review, 'do not submit ... personal information'; Groq: no retention by default, logs up to 30 days in some cases, ZDR available, US storage, data page silent on training) and advised against sending real complaint text, because redaction is not signed off. Nothing was sent to either | **Decided** | Small local model only; no hosted comparison |
-| D-34 | **Evaluation closed at N=30 (2026-11-27).** The author labeled the first 30 of the frozen order (allowed by the frozen plan, N>=30); this supersedes the earlier >=50 target. Results show the system escalates every real record; no prompt or rule change after scoring. Checks added after seeing scores (Wilson bound, majority macro-F1 and urgency baselines, main-run escalation totals; `posthoc_checks.py`) are marked post hoc. AI changed the memo recommendation from funding shadow mode to funding offline evaluation only (author to confirm). | | |
+| D-34 | **Evaluation closed at N=30 (2026-11-27).** The author labeled the first 30 of the frozen order (allowed by the frozen plan, N>=30); this supersedes the earlier >=50 target. Results show the system escalates every real record; no prompt or rule change after scoring. Checks added after seeing scores (Wilson bound, majority macro-F1 and urgency baselines, main-run escalation totals; `posthoc_checks.py`) are marked post hoc. AI changed the memo recommendation from funding shadow mode to funding offline evaluation only (author agreed, 2026-11-27). | | |
+| D-35 | **Suggested operating point (user approved 2026-11-27, on AI's recommendation): logistic regression, Rule B, c = EUR 5, as a trial starting point.** Chosen AFTER test results: not an independent test, not part of the frozen config; no Part A code or result changed or rerun. Money outcome is essentially tied with Rule A; Rule B is much worse at c = 25. | | |
 | D-04 | Final taxonomy | **OPEN** until M3 | Must be frozen before labeling |
 | D-05 | Python 3.12 + uv venv; deps in `pyproject.toml`, pinned `requirements.txt` (pip-compatible) | **Decided** | No uv-only lockfile so reviewers can use plain pip. Tested on macOS arm64 only |
 
@@ -513,7 +514,7 @@ For each milestone: proposal drafted → approved by user → executed → two r
 - [ ] Code is simple enough to explain line by line
 
 **Communication**
-- [ ] README: setup, approach, results, what was cut and why
+- [x] README: setup, approach, results, what was cut and why
 - [x] Memo ≤ 2 pages, concrete, diagram included
 - [ ] AI_USAGE.md specific and truthful; authorship table final
 
