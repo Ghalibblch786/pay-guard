@@ -44,10 +44,10 @@ def fraud_chart() -> None:
 
 def complaint_chart() -> None:
     c = engine.complaint_summary()
-    fig, axes = plt.subplots(1, 3, figsize=(10.5, 2.2))
+    fig, axes = plt.subplots(1, 3, figsize=(9, 2.3))
     panel(axes[0], f"Right team, of {c['category_n']}", ["Model", "Simple guess"], [c["category_right"], c["category_guess"]], c["category_n"])
     panel(axes[1], f"Right urgency, of {c['category_n']}", ["Model", "Simple guess"], [c["urgency_right"], c["urgency_guess"]], c["category_n"])
-    panel(axes[2], f"Needing a person, of {c['labeled']}", ["System sent", "Really needed"], [c["labeled_sent"], c["labeled_needed"]], c["labeled"])
+    panel(axes[2], f"Person needed, of {c['labeled']}", ["System sent", "Really needed"], [c["labeled_sent"], c["labeled_needed"]], c["labeled"])
     save(fig, "complaint_results.png")
 
 

@@ -42,7 +42,7 @@ Models only **suggest**: nothing is blocked or closed automatically. Complaint t
 
 **Fraud: promising.** Trained on earlier payments, tested once on later ones (42,561 payments, 52 frauds). With so little fraud, accuracy is meaningless, so we count frauds caught and false alarms.
 
-<img src="docs/images/fraud_results.png" width="560" alt="Fraud results: frauds caught and false alarms for three options">
+<img src="docs/images/fraud_results.png" width="800" alt="Fraud results: frauds caught and false alarms for three options">
 
 - **Suggested start:** the simpler model, flagging payments with over a 4.2% chance of fraud: **39 of 52 caught, 20 false alarms**, for an estimated €2,667 against €6,169 if nothing is flagged. We chose it **after** seeing these results, so expect somewhat worse on new data.
 - **Errors differ:** a missed fraud loses its amount; a false alarm costs a review and may lose a customer, which we could not price. The other rule costs about the same and is cheaper when reviews are expensive. The stronger model's small edge is **not proven**.
@@ -50,7 +50,7 @@ Models only **suggest**: nothing is blocked or closed automatically. Complaint t
 
 **Complaints: safe flow, weak model.** [400 public US complaints](docs/technical_notes.md#data) processed; one person labeled 30 without seeing the model's answers.
 
-<img src="docs/images/complaint_results.png" width="600" alt="Complaint results compared with simple guesses">
+<img src="docs/images/complaint_results.png" width="800" alt="Complaint results compared with simple guesses">
 
 - **It sent all 400 to a person**, saving no review work, and chose the right team **no more often than a simple guess**.
 - Of 10 summaries, **1 was wrong or misleading**. 6 of 9 attack tests passed; in one failure, a hidden instruction kept a complaint away from a person.
