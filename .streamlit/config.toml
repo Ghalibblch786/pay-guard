@@ -1,0 +1,13 @@
+[server]
+address = "127.0.0.1"        # this computer only: the complaint page accepts typed text
+headless = true
+
+[browser]
+gatherUsageStats = false     # send nothing to Streamlit
+
+[theme]
+base = "light"
+primaryColor = "#3b5b7a"
+
+[client]
+toolbarMode = "minimal"      # hides developer buttons

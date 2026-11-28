@@ -1,10 +1,7 @@
 """Tests for the flag-audit selection and highlighting logic. SYNTHETIC data only."""
 import re
 
-import pytest
-
 from part_b.flag_audit import highlight, pick_audit
-from part_b.flag_audit_summary import summarize
 
 FLAGGED = ([(i, frozenset({"rare"})) for i in range(2)] + [(10 + i, frozenset({"mid"})) for i in range(10)] + [(100 + i, frozenset({"common"})) for i in range(50)]
            + [(200 + i, frozenset({"common", "rare"})) for i in range(3)])
@@ -30,9 +27,3 @@ def test_highlight_marks_and_merges_overlaps():
     assert "«password reset»[credentials,other]" in out and "«account number»[financial]" in out
     assert highlight("nothing flagged here", rx) == "nothing flagged here"
 
-
-def test_summary_counts_and_validation():
-    rows = [{"item": "1", "category": "a", "verdict": "y"}, {"item": "2", "category": "a", "verdict": "n"}, {"item": "3", "category": "b", "verdict": "u"}]
-    assert summarize(rows) == ({"a": {"y": 1, "n": 1}, "b": {"u": 1}}, {"y": 1, "n": 1, "u": 1})
-    with pytest.raises(ValueError):
-        summarize([{"item": "1", "category": "a", "verdict": ""}])

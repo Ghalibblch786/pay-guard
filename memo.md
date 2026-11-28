@@ -2,7 +2,7 @@
 
 **To:** CTO, PayGuard · **From:** AI Engineering · **Date:** 27 November 2026
 
-This memo covers **complaint triage**, not fraud detection: it raises more open questions on privacy, data residency and failures that go unnoticed. Real-time fraud scoring is outlined in the [README](README.md#real-time-inference-a6).
+This memo covers **complaint triage**, not fraud detection: it raises more open questions on privacy, data residency and failures that go unnoticed. Real-time fraud scoring is outlined in the [technical notes](docs/technical_notes.md#real-time-use).
 
 ## Decision requested
 Fund **offline evaluation (phase 0) only**. Do not ship this model, and do not start shadow mode until a candidate beats simple baselines. The engineering pattern runs end to end on public US complaint data; **the model's decisions are not yet useful**.

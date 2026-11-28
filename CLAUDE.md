@@ -6,10 +6,10 @@ on judgment, evaluation rigor, code clarity and communication, then in a live se
 they must explain and modify every line. Work accordingly.
 
 ## Source-of-truth hierarchy
-1. `SCOPE.md` — frozen contract. **Never edit it** (no reformatting, typo fixes, or appends)
+1. `docs/process/SCOPE.md` — frozen contract. **Never edit it** (no reformatting, typo fixes, or appends)
    unless the user explicitly asks to change SCOPE.md in that message. If a request or another
    file conflicts with it, flag the conflict and follow SCOPE.md.
-2. `SPECS.md` — build spec, milestones, decision log. Keep it current (see below).
+2. `docs/process/SPECS.md` — build spec, milestones, decision log. Keep it current (see below).
 3. `CLAUDE.md` — these rules.
 4. `AI_USAGE.md` — disclosure log. Keep it current (see below).
 

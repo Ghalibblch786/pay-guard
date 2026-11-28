@@ -4,7 +4,7 @@
 > and the **Milestones** checkboxes current as work progresses. It must never contradict
 > `SCOPE.md` (frozen). If it would, stop and ask the user.
 
-Last updated: 2026-11-28 · Current milestone: **Summaries rated; recording (optional), submission and rehearsal outstanding**
+Last updated: 2026-11-28 · Current milestone: **Pushed; author review and rehearsal outstanding**
 
 ---
 
@@ -276,6 +276,7 @@ All §2 rows ☑, D1 verified from a clean clone, README/memo/AI_USAGE complete 
 | D-33 | **Provider (user, 2026-11-27): stay local.** The author considered free Gemini and Groq. AI checked the terms that day (Gemini unpaid: content used to improve products, possible human review, 'do not submit ... personal information'; Groq: no retention by default, logs up to 30 days in some cases, ZDR available, US storage, data page silent on training) and advised against sending real complaint text, because redaction is not signed off. Nothing was sent to either | **Decided** | Small local model only; no hosted comparison |
 | D-34 | **Evaluation closed at N=30 (2026-11-27).** The author labeled the first 30 of the frozen order (allowed by the frozen plan, N>=30); this supersedes the earlier >=50 target. Results show the system escalates every real record; no prompt or rule change after scoring. Checks added after seeing scores (Wilson bound, majority macro-F1 and urgency baselines, main-run escalation totals; `posthoc_checks.py`) are marked post hoc. AI changed the memo recommendation from funding shadow mode to funding offline evaluation only (author agreed, 2026-11-27). | | |
 | D-35 | **Suggested operating point (user approved 2026-11-27, on AI's recommendation): logistic regression, Rule B, c = EUR 5, as a trial starting point.** Chosen AFTER test results: not an independent test, not part of the frozen config; no Part A code or result changed or rerun. Money outcome is essentially tied with Rule A; Rule B is much worse at c = 25. | | |
+| D-36 | **Presentation and dashboard (user approved the plan, 2026-11-28).** README rewritten for a CTO with detail moved to `docs/technical_notes.md`; local Streamlit dashboard added (supersedes the no-UI cut in section 11 so a non-technical reader can see both prototypes run; it is not a chatbot, and the batch pipeline remains the Part B deliverable); fraud screen uses validation rows only; complaint screen uses invented or typed text and saves nothing typed; six scripts deleted (`summarize_review.py` and `inspect_archive.py` kept because tests or sample rebuilding use them; the Amount-band result file kept because the frozen config mentions it); SPECS and SCOPE moved to `docs/process/`. Frozen files and results unchanged. | | |
 | D-04 | Final taxonomy | **OPEN** until M3 | Must be frozen before labeling |
 | D-05 | Python 3.12 + uv venv; deps in `pyproject.toml`, pinned `requirements.txt` (pip-compatible) | **Decided** | No uv-only lockfile so reviewers can use plain pip. Tested on macOS arm64 only |
 
@@ -445,6 +446,13 @@ It also does not show that the 18.29% local-only routing rate is appropriate.
 
 ### 9q. Summary faithfulness (2026-11-27/28)
 The author rated all 10 sampled summaries locally: faithful 1, minor omission 8, unsupported 1 (supersedes "not done" in 9o and the >=20 samples design note in section 5). 95% Wilson for unsupported about 0.02-0.40 (post hoc). Fuller rating meanings were written by AI after the other scores were seen; one rater, not blind to aggregate results. One typo in the rating sheet was corrected by the author. AI did not read the summaries or complaints. Labels unchanged; no prompt or rule change.
+
+### 9r. Presentation and dashboard (2026-11-28)
+Post-milestone questions. **What could invalidate this?** The dashboard's fraud page uses validation rows, which informed the choice of Rule B, so it looks better than new data would; "what moved the estimate" explains the logistic score, not the cause of fraud, and most fields are disguised; demo complaints are invented and few; production durations and team size are estimates with no PayGuard input. **What would a sceptic say?** A screen can make a weak model look finished; the fraud-scenario list is general knowledge, not analysis; the README says little about method and relies on the technical notes; the code base is still large for a prototype.
+
+### 9s. Fresh-clone test (2026-11-28)
+Run on a fresh clone with the same code as the current commit (later changes were to documents only). New Python 3.12 venv: install ok; 409 passed, 5 skipped without data; sample rebuild PASS; 414 passed with `creditcard.csv`; app started the README way and listened on 127.0.0.1 only; no tracked file changed; repository reachable without login. Part A scripts and local model runs not repeated. Same machine; data files copied locally. Temporary clone deleted.
+GitHub display check (signed out, dark theme): diagrams and images rendered, but forced white fill hid the dashed "next stage" boxes, zoom controls covered them, charts were too small to read, and one README sentence was unclear. The README is about four laptop screens there, **longer than the two screens intended**; the earlier local estimate was wrong. Display and wording fixes were made and checked in light and dark Mermaid themes.
 
 ## 10. Open questions for the user
 - (M3, 2026-11-26) see the revised M3 proposal: first-download approval, which exports, who reads narratives (Claude vs sanitized only), commit labels or not, small-stratum rule, LLM-provider terms for sanitized text.

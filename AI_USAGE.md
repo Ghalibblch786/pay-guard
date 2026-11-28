@@ -8,7 +8,7 @@ Maintained continuously by Claude Code and reviewed by the author before submiss
 |---|---|---|
 | Claude Code (CLI/VS Code extension) | Claude Sonnet 5.5 (`claude-sonnet-5-5`) | Reading the assignment brief, planning, drafting project docs, and (as work proceeds) code, tests, and write-ups |
 
-Claude Code also used web search and a web-fetch subagent (to read LLM providers' terms; no project data sent). Not a coding assistant, but part of the product: the local model `llama3.2:3b` (via Ollama) produces the Part B triage outputs. The author confirmed on 2026-11-27 that they used no other AI tool.
+Claude Code also used web search and a web-fetch subagent (to read LLM providers' terms; no project data sent). Not a coding assistant, but part of the product: the local model `llama3.2:3b` (via Ollama) produces the Part B triage outputs. On 2026-11-27 the author confirmed that they had used no other AI tool. On 2026-11-28 the author also used Claude in a separate chat to help write task instructions.
 
 ## How the work was actually done
 - Through M2 and most of M3, work went in proposal-and-approval steps. On 2026-11-27 the author moved to a faster strategy (SPECS D-32): AI took routine implementation decisions, including model, prompt-selection rule, reduced evaluation plan and the memo's recommendation.
@@ -22,13 +22,15 @@ and can explain it.
 
 | File / area | AI-drafted share | Author work | Reviewed |
 |---|---|---|---|
-| SCOPE.md | ~100% (paraphrase of wiki brief) | Provided the brief link; will verify wording against the wiki | ☐ |
-| SPECS.md | ~90% | Requested structure; decisions to be confirmed | ☐ |
+| docs/process/SCOPE.md | ~100% (paraphrase of wiki brief) | Provided the brief link; will verify wording against the wiki | ☐ |
+| docs/process/SPECS.md | ~90% | Requested structure; decisions to be confirmed | ☐ |
 | CLAUDE.md | ~90% | Requested; rules to be confirmed | ☐ |
 | AI_USAGE.md | ~90% | Reviews entries for accuracy | ☐ |
 | Part A code (`part_a/*.py`, `tests/`) | ~95% AI-written; author specified design constraints, reviewed results | Specified split, leakage, duplicate, calibration and rule requirements; made all decisions | ☐ |
 | Part B code (`part_b/`, Part B tests; includes the D-29 exclusion code) | ~95% AI-written; author set safeguards and requirements | Set data-protection rules, approved designs and fixes, ran the flag-audit summary and recorded all 29 audit verdicts | ☐ |
-| README.md | ~95% AI-drafted, including first-person text about the author's flag audit | Requested content and limits; confirmed the first-person "I reviewed" statements as accurate (2026-11-27) | ☐ |
+| README.md | ~100% AI-drafted (rewritten 2026-11-28) | Approved the plan; to be reviewed | ☐ |
+| docs/technical_notes.md | ~100% AI-drafted; its first-person review statements describe the author's own work | Statements about the author's reviews were confirmed on 2026-11-27 in their earlier README form | ☐ |
+| app/ (dashboard), .streamlit/, tests/test_app.py | ~100% AI-written, including the invented demo complaints | Approved the plan | ☐ |
 | memo.md | ~100% AI-drafted, including the recommendation | Set scope and constraints; hand labels behind its Part B results; agreed with the recommendation (2026-11-27) | ☐ |
 
 **Overall (rough judgment, not measured from line history):** about 95% of the code and tests, and about 90% or more of the documentation text, was first drafted by AI. The author's direct contributions are requirements, safeguards, decisions, review verdicts and hand labels.
@@ -211,6 +213,14 @@ Final checks by AI: 403 tests, freeze verification, rescoring, one live syntheti
 **Update (2026-11-27, push and fresh-clone test):** AI re-ran the leak scan and tests, committed the four documents as `a1ab783`, pushed, and tested a fresh clone (results in SPECS 9p), including the author-approved Part A validation-only check, which reproduced the saved file exactly. The test split was not used. These record-keeping edits were made after that commit.
 
 **Update (2026-11-27/28, brief comparison and summary ratings):** at the author's request AI compared the project with the assignment text the author pasted (no files changed then), and helped plan the optional screen recording. The author rated all 10 summaries in their own terminal and fixed one typo; AI wrote the instructions, the fuller rating meanings and invented examples, counted totals only, did not read the summaries or complaint text, and added the results and their limits to README, memo and SPECS.
+
+**Update (2026-11-28, presentation and dashboard):** AI proposed a plan and the author approved it as recommended. AI then: deleted six unused or one-off scripts (including the Part A Amount-band diagnostic and one flag-audit summary test); moved SPECS and SCOPE to `docs/process/` (contents unchanged by the move) and updated the paths in CLAUDE.md; added Streamlit; wrote the dashboard (`app/`), its tests, six invented demo complaints and their saved local-model answers; wrote the chart script; rewrote the README; wrote `docs/technical_notes.md`, including the comparison with real payment data and the fraud-scenario list (general domain knowledge, not found in this data); and changed one memo link. Production durations and team size in the README are AI's planning estimates. No model was trained, no test-set transaction was scored, and no real complaint text was used in the new app (the privacy search read it locally and printed counts only). Checks: 414 tests; a clean copy with a new environment (409 passed, 5 skipped without the fraud data; app started and listened on this computer only). The author has not yet reviewed the new code or text.
+
+**Update (2026-11-28, commit):** the author asked AI to commit and push. AI had first asked them to try the app and to check the planning estimates, fraud scenarios, README wording and this disclosure, saying to reply this way if accurate. The author did not answer those items one by one, so this log does not record them as separately confirmed or the new work as reviewed.
+
+**Update (2026-11-28, clone test and GitHub display check):** AI committed and pushed the work, tested a fresh clone and viewed the public README signed out (SPECS 9s). AI then fixed the diagram colours and labels, chart sizes and one unclear sentence, and corrected its earlier claim that the README fitted about two screens.
+
+**Update (2026-11-28, wording):** at the author's request AI edited wording in this log and in SPECS, then replaced the latest commit on GitHub with a single new one (history rewrite). The AI tool disclosure stays.
 
 <!-- Claude: append new session entries below this line, newest last. Keep entries specific. -->
 
