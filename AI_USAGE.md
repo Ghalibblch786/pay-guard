@@ -222,6 +222,10 @@ Final checks by AI: 403 tests, freeze verification, rescoring, one live syntheti
 
 **Update (2026-11-28, wording):** at the author's request AI edited wording in this log and in SPECS, then replaced the latest commit on GitHub with a single new one (history rewrite). The AI tool disclosure stays.
 
+**Update (2026-11-28, README trim):** at the author's request AI cut the README from about 1,140 to 840 words: merged the two diagrams, removed the status table and some detail, and made the charts smaller. AI said all removed detail remained in the technical notes or memo; **that was wrong** for the fraud scoring service and fraud monitoring. Not committed at the time of writing.
+
+**Update (2026-11-28, funding request and repair):** at the author's request AI added a stage 1 funding request to the README (what PayGuard provides, pass conditions, team), restored a done-and-next table and added fraud production and monitoring steps. The engineer-weeks figure is arithmetic on AI's own estimates; the fraud monitoring frequencies and the fall-back to existing controls are AI's design proposals. Shown to the author before committing; the author then asked AI to commit and push. This does not record the new proposals as separately confirmed.
+
 <!-- Claude: append new session entries below this line, newest last. Keep entries specific. -->
 
 **Update (2026-11-27, project overview):** the author asked for a plain-language overview of the project. AI read the project documents and some of the code, listed files and docstrings, ran the test suite (403 passed) and explained the project in chat with text diagrams. No narrative text or labels read. Only this entry changed; no code, results or SPECS change; no commit. The author made no new decisions.
